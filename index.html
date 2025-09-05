@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scribbly</title>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="note-container">
+    <header>
+      <div class="add-btn">
+        <span class="material-symbols-outlined" title="Add new note">add</span>
+      </div>
+      <h1>Scribbly</h1>
+    </header>
+
+    <input type="text" class="search" placeholder="Search...">
+    <div class="notes"></div>
+
+    <div class="empty">No notes yet — click + to create one.</div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
