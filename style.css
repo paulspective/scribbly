@@ -76,7 +76,7 @@ header h1 {
 .search {
   width: 100%;
   padding: 0.7rem 0.8rem;
-  border-radius: 4px;
+  border-radius: 6px;
   background: var(--input-bg);
   color: var(--text);
   border: 2px solid transparent;
@@ -97,12 +97,12 @@ header h1 {
 /* Notes */
 .note {
   background: var(--card);
-  border-radius: 4px;
+  border-radius: 6px;
   padding: 0.8rem;
   border-top: 2px solid var(--border);
   margin-bottom: 0.8rem;
   transition: background 0.2s, border-top 0.2s;
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
 }
 
 .note:focus-within {
@@ -110,6 +110,7 @@ header h1 {
 }
 
 .note:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
   background: var(--card-hover);
 }
 
@@ -135,7 +136,7 @@ header h1 {
 /* Editor & Preview */
 .note-editor {
   width: 100%;
-  min-height: 200px;
+  min-height: 300px;
   border: none;
   resize: vertical;
   background: var(--input-bg);
@@ -147,14 +148,51 @@ header h1 {
   display: none;
 }
 
+.note-editor::-webkit-scrollbar {
+  width: 5px;
+}
+
+.note-editor::-webkit-scrollbar-track {
+  background: var(--input-bg);
+  border-radius: 4px;
+}
+
+.note-editor::-webkit-scrollbar-thumb {
+  background: var(--muted);
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.note-editor::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-hover);
+}
+
 .note.editing .note-editor {
   display: block;
 }
 
+.note.editing .note-timestamp {
+  display: none;
+}
+
+/* Markdown Preview */
 .note-preview {
   font-size: 0.95rem;
   line-height: 1.4;
   padding: 0 0.9rem;
+  animation: fadeSlide 0.5s ease-out;
+}
+
+@keyframes fadeSlide {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .note.editing .note-preview {
@@ -166,4 +204,20 @@ header h1 {
   color: var(--muted);
   text-align: center;
   padding: 3.2rem 1rem;
+}
+
+/* Timestamp */
+.note-timestamp {
+  font-size: 0.7rem;
+  color: var(--muted);
+  margin-top: 0.4rem;
+  text-align: right;
+  font-style: italic;
+}
+
+/* Highlighted text */
+mark {
+  background-color: var(--accent-hover);
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
 }
