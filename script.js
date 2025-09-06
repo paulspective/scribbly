@@ -34,14 +34,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Filter notes by search term
-    notes.forEach(note => {
+     notes.forEach(note => {
       const textArea = note.querySelector('.note-editor');
       const text = textArea.value;
-      if (text.toLowerCase().includes(term)) {
+      if (text.toLowerCase().includes(term.toLowerCase())) {
         note.style.display = '';
         const html = marked.parse(text);
-        const regex = new RegExp(`(${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-        note.querySelector('.note-preview').innerHTML = html.replace(regex, '<mark>$1</mark>');
+        const regex = new RegExp(`(<[^>]+>)|(${term.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\$&')})`, 'gi');
+        note.querySelector('.note-preview').innerHTML = html.replace(regex, (match, tag, capture) => {
+          return tag ? tag : `<mark>${capture}</mark>`;
+        });
       } else {
         note.style.display = 'none';
       }
@@ -178,3 +180,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
   loadNotes();
 });
+
