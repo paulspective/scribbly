@@ -104,8 +104,6 @@ document.addEventListener('DOMContentLoaded', () => {
     timestamp.textContent = 'Last edited: ' + formatTimestamp(noteTimestamp);
 
     textArea.addEventListener('input', () => {
-      textArea.style.height = 'auto';
-      textArea.style.height = textArea.scrollHeight + 'px';
       preview.innerHTML = marked.parse(textArea.value);
       const now = new Date();
       note.dataset.timestamp = now.toISOString();
@@ -180,4 +178,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
   loadNotes();
 });
+
 
