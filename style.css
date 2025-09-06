@@ -66,6 +66,9 @@ header h1 {
   position: absolute;
   top: 0;
   right: 0;
+  padding: 0.1rem 0.6rem;
+  background-color: var(--border);
+  border-radius: 50%;
 }
 
 .add-btn:hover {
@@ -221,3 +224,4 @@ mark {
   padding: 0.1rem 0.3rem;
   border-radius: 4px;
 }
+
