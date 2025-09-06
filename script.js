@@ -1,3 +1,16 @@
+// timestamp formatting
+function formatTimestamp(date) {
+  const day = date.getDate();
+  const month = date.toLocaleString('en-US', { month: 'short' });
+  const year = date.getFullYear();
+  const time = date.toLocaleString('en-US', {
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: true
+  });
+  return `${day} ${month}, ${year}. ${time}`;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const addBtn = document.querySelector('.add-btn');
   const notesEl = document.querySelector('.notes');
@@ -12,8 +25,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (term.length === 0) {
       notes.forEach(note => {
         note.style.display = '';
-        const ta = note.querySelector('.note-editor');
-        note.querySelector('.note-preview').innerHTML = marked.parse(ta.value);
+        const textArea = note.querySelector('.note-editor');
+        note.querySelector('.note-preview').innerHTML = marked.parse(textArea.value);
       });
       emptyEl.style.display = notes.length ? 'none' : 'block';
       emptyEl.textContent = 'No notes yet — click + to create one.';
@@ -22,8 +35,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Filter notes by search term
     notes.forEach(note => {
-      const ta = note.querySelector('.note-editor');
-      const text = ta.value;
+      const textArea = note.querySelector('.note-editor');
+      const text = textArea.value;
       if (text.toLowerCase().includes(term)) {
         note.style.display = '';
         const html = marked.parse(text);
@@ -44,12 +57,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Initial notes load  
-  loadNotes();
-
-  // Load existing notes
+  // Save notes to localStorage
   function saveNotes() {
-    const notes = [...document.querySelectorAll('.note-editor')].map(text => text.value);
+    const notes = [...document.querySelectorAll('.note')].map(note => {
+      const text = note.querySelector('.note-editor').value;
+      const ts = note.dataset.timestamp || new Date().toISOString();
+      return { content: text, timestamp: ts };
+    });
     localStorage.setItem('scribblyNotes', JSON.stringify(notes));
   }
 
@@ -59,36 +73,41 @@ document.addEventListener('DOMContentLoaded', () => {
     emptyEl.style.display = visibleNotes.length ? 'none' : 'block';
   }
 
-  function autosize(ta) {
-    ta.style.height = 'auto';
-    ta.style.height = ta.scrollHeight + 'px';
-  }
-
   // Create a new note
-  function createNote(content = '', isNew = true) {
+  function createNote(content = '', isNew = true, timestampStr = null) {
     const note = document.createElement('div');
     note.className = 'note';
 
     const toolbar = document.createElement('div');
     toolbar.className = 'note-toolbar';
     toolbar.innerHTML = `
-      <span class="material-symbols-outlined edit-btn" title="Edit note">edit</span>
-      <span class="material-symbols-outlined delete-btn" title="Delete note">delete</span>
-    `;
+        <span class="material-symbols-outlined edit-btn" title="Edit note">edit</span>
+        <span class="material-symbols-outlined delete-btn" title="Delete note">delete</span>
+      `;
 
-    const ta = document.createElement('textarea');
-    ta.className = 'note-editor';
-    ta.placeholder = 'Write something...';
-    ta.value = content;
+    const textArea = document.createElement('textarea');
+    textArea.className = 'note-editor';
+    textArea.placeholder = 'Write something...';
+    textArea.value = content;
 
     const preview = document.createElement('div');
     preview.className = 'note-preview';
     preview.innerHTML = marked.parse(content);
 
-    ta.addEventListener('input', () => {
-      ta.style.height = 'auto';
-      ta.style.height = ta.scrollHeight + 'px';
-      preview.innerHTML = marked.parse(ta.value);
+    const noteTimestamp = timestampStr ? new Date(timestampStr) : new Date();
+    note.dataset.timestamp = noteTimestamp.toISOString();
+
+    const timestamp = document.createElement('div');
+    timestamp.className = 'note-timestamp';
+    timestamp.textContent = 'Last edited: ' + formatTimestamp(noteTimestamp);
+
+    textArea.addEventListener('input', () => {
+      textArea.style.height = 'auto';
+      textArea.style.height = textArea.scrollHeight + 'px';
+      preview.innerHTML = marked.parse(textArea.value);
+      const now = new Date();
+      note.dataset.timestamp = now.toISOString();
+      timestamp.textContent = 'Last edited: ' + formatTimestamp(now);
       saveNotes();
     });
 
@@ -96,9 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (e.target.classList.contains('edit-btn')) {
         note.classList.toggle('editing');
         if (note.classList.contains('editing')) {
-          ta.focus();
-          ta.style.height = 'auto';
-          ta.style.height = ta.scrollHeight + 'px';
+          textArea.focus();
         }
       }
       if (e.target.classList.contains('delete-btn')) {
@@ -109,13 +126,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     note.appendChild(toolbar);
-    note.appendChild(ta);
+    note.appendChild(textArea);
     note.appendChild(preview);
+    note.appendChild(timestamp);
     notesEl.insertBefore(note, notesEl.firstChild);
 
     if (isNew) {
       note.classList.add('editing');
-      ta.focus();
+      textArea.focus();
     }
 
     updateEmptyState();
@@ -132,8 +150,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const note = e.target.closest('.note');
     setTimeout(() => {
       if (!note.contains(document.activeElement)) {
-        const ta = note.querySelector('.note-editor');
-        const text = ta.value.trim();
+        const textArea = note.querySelector('.note-editor');
+        const text = textArea.value.trim();
         if (!text) {
           note.remove();
           updateEmptyState();
@@ -146,8 +164,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 200);
   });
 
+  // Load existing notes and restore their timestamps
   function loadNotes() {
     const stored = JSON.parse(localStorage.getItem('scribblyNotes') || '[]');
-    stored.forEach(text => createNote(text, false));
+    stored.forEach(item => {
+      if (typeof item === 'object' && item.content !== undefined && item.timestamp !== undefined) {
+        createNote(item.content, false, item.timestamp);
+      } else {
+        createNote(item, false);
+      }
+    });
   }
+
+  loadNotes();
 });
