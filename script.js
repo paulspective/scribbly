@@ -1,14 +1,17 @@
 // timestamp formatting
 function formatTimestamp(date) {
+  const now = new Date();
+  const diff = Math.floor((now - date) / 1000);
+
+  if (diff < 60) return 'Last edited less than a minute ago';
+  if (diff < 3600) return `Last edited ${Math.floor(diff / 60)} min ago`;
+  if (diff < 86400) return `Last edited ${Math.floor(diff / 3600)} hr ago`;
+  if (diff < 604800) return `Last edited ${Math.floor(diff / 86400)} day(s) ago`;
+
   const day = date.getDate();
   const month = date.toLocaleString('en-US', { month: 'short' });
   const year = date.getFullYear();
-  const time = date.toLocaleString('en-US', {
-    hour: 'numeric',
-    minute: 'numeric',
-    hour12: true
-  });
-  return `${day} ${month}, ${year}. ${time}`;
+  return `Last edited ${day} ${month}, ${year}`;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -26,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
       notes.forEach(note => {
         note.style.display = '';
         const textArea = note.querySelector('.note-editor');
-        note.querySelector('.note-preview').innerHTML = marked.parse(textArea.value);
+        note.querySelector('.note-preview').innerHTML = textArea.value;
       });
       emptyEl.style.display = notes.length ? 'none' : 'block';
       emptyEl.textContent = 'No notes yet — click + to create one.';
@@ -34,16 +37,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Filter notes by search term
-     notes.forEach(note => {
+    notes.forEach(note => {
       const textArea = note.querySelector('.note-editor');
       const text = textArea.value;
       if (text.toLowerCase().includes(term.toLowerCase())) {
+        // if (term.length < 2) {
+        //   note.querySelector('.note-preview').innerText = text;
+        //   return;
+        // }
+
         note.style.display = '';
-        const html = marked.parse(text);
-        const regex = new RegExp(`(<[^>]+>)|(${term.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\$&')})`, 'gi');
-        note.querySelector('.note-preview').innerHTML = html.replace(regex, (match, tag, capture) => {
-          return tag ? tag : `<mark>${capture}</mark>`;
-        });
+        const highlighted = text.replace(
+          new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'),
+          match => `<mark>${match}</mark>`
+        );
+        note.querySelector('.note-preview').innerHTML = highlighted;
       } else {
         note.style.display = 'none';
       }
@@ -94,20 +102,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const preview = document.createElement('div');
     preview.className = 'note-preview';
-    preview.innerHTML = marked.parse(content);
+    preview.innerHTML = content;
 
     const noteTimestamp = timestampStr ? new Date(timestampStr) : new Date();
     note.dataset.timestamp = noteTimestamp.toISOString();
 
     const timestamp = document.createElement('div');
     timestamp.className = 'note-timestamp';
-    timestamp.textContent = 'Last edited: ' + formatTimestamp(noteTimestamp);
+    timestamp.textContent = formatTimestamp(noteTimestamp);
+
+    note.addEventListener('click', () => {
+      note.classList.toggle('expanded');
+    });
 
     textArea.addEventListener('input', () => {
-      preview.innerHTML = marked.parse(textArea.value);
+      preview.innerHTML = textArea.value;
       const now = new Date();
       note.dataset.timestamp = now.toISOString();
-      timestamp.textContent = 'Last edited: ' + formatTimestamp(now);
+      timestamp.textContent = formatTimestamp(now);
       saveNotes();
     });
 
@@ -156,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
           note.remove();
           updateEmptyState();
         } else {
-          note.querySelector('.note-preview').innerHTML = marked.parse(text);
+          note.querySelector('.note-preview').innerHTML = text;
           note.classList.remove('editing');
           saveNotes();
         }
@@ -178,5 +190,3 @@ document.addEventListener('DOMContentLoaded', () => {
 
   loadNotes();
 });
-
-
