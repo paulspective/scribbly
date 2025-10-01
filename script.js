@@ -3,15 +3,35 @@ function formatTimestamp(date) {
   const now = new Date();
   const diff = Math.floor((now - date) / 1000);
 
-  if (diff < 60) return 'Last edited less than a minute ago';
-  if (diff < 3600) return `Last edited ${Math.floor(diff / 60)} min ago`;
-  if (diff < 86400) return `Last edited ${Math.floor(diff / 3600)} hr ago`;
-  if (diff < 604800) return `Last edited ${Math.floor(diff / 86400)} day(s) ago`;
+  const pluralize = (value, unit) =>
+    `${value} ${unit}${value === 1 ? '' : 's'}`;
+
+  if (diff < 10) return 'Just now';
+  if (diff < 60) return `Last edited ${pluralize(diff, 'second')} ago`;
+
+  const minutes = Math.floor(diff / 60);
+  if (minutes < 60) return `Last edited ${pluralize(minutes, 'minute')} ago`;
+
+  const hours = Math.floor(diff / 3600);
+  if (hours < 24) return `Last edited ${pluralize(hours, 'hour')} ago`;
+
+  const days = Math.floor(diff / 86400);
+  if (days === 1) return 'Last edited Yesterday';
+  if (days === 7) return 'Last edited Last week';
+  if (days < 7) {
+    const weekday = date.toLocaleString('en-US', { weekday: 'long' });
+    return `Last edited ${weekday}`;
+  }
 
   const day = date.getDate();
   const month = date.toLocaleString('en-US', { month: 'short' });
   const year = date.getFullYear();
-  return `Last edited ${day} ${month}, ${year}`;
+
+  if (year === now.getFullYear()) {
+    return `Last edited ${day} ${month}`;
+  } else {
+    return `Last edited ${day} ${month}, ${year}`;
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -41,11 +61,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const textArea = note.querySelector('.note-editor');
       const text = textArea.value;
       if (text.toLowerCase().includes(term.toLowerCase())) {
-        // if (term.length < 2) {
-        //   note.querySelector('.note-preview').innerText = text;
-        //   return;
-        // }
-
         note.style.display = '';
         const highlighted = text.replace(
           new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'),
@@ -189,4 +204,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   loadNotes();
+  setInterval(() => {
+    const notes = document.querySelectorAll('.note');
+    notes.forEach(note => {
+      const ts = new Date(note.dataset.timestamp);
+      const tsEl = note.querySelector('.note-timestamp');
+      if (tsEl) {
+        tsEl.textContent = formatTimestamp(ts);
+      }
+    });
+  }, 30 * 1000);
 });
