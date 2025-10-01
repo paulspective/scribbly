@@ -50,7 +50,7 @@ header {
   display: flex;
   align-items: center;
   position: relative;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2.5rem;
 }
 
 header h1 {
@@ -162,7 +162,7 @@ header h1 {
 
 .note-editor::-webkit-scrollbar-thumb {
   background: var(--muted);
-  cursor: pointer;
+  cursor: default;
   border-radius: 4px;
 }
 
@@ -182,8 +182,21 @@ header h1 {
 .note-preview {
   font-size: 0.95rem;
   line-height: 1.4;
-  padding: 0 0.9rem;
+  padding: 0 0.6rem;
   animation: fadeSlide 0.5s ease-out;
+  display: -webkit-box;
+  -webkit-line-clamp: 15;
+  line-clamp: 15;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: pre-wrap;
+}
+
+.note.expanded .note-preview {
+  max-height: none;
+  -webkit-line-clamp: unset;
+  line-clamp: unset;
 }
 
 @keyframes fadeSlide {
@@ -221,7 +234,6 @@ header h1 {
 /* Highlighted text */
 mark {
   background-color: var(--accent-hover);
-  padding: 0.1rem 0.3rem;
+  padding: 0.1rem 0.1rem;
   border-radius: 4px;
 }
-
