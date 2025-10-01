@@ -1,11 +1,8 @@
-# 📝Scribbly – Minimalist note-taking in your browser:
+# 📝Scribbly – Minimalist note-taking in your browser
 
-- Write notes in Markdown
-
-- Search & highlight keywords
-
-- Auto-save in local storage
-
-- Dark & light themes
-
-- Mobile-friendly and sleek
+## Features
+- Fast, distraction-free note-taking
+- Auto-save to localStorage
+- Smart timestamp formatting
+- Search with keyword highlighting
+- Clean preview with ellipsis for long notes
