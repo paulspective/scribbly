@@ -1,28 +1,25 @@
-:root {
-  /* Dark theme defaults */
-  --bg: #1e1e1e;
-  --card: #2f2f2f;
-  --card-hover: #3a3a3a;
-  --text: #eee;
-  --muted: #9aa0a6;
-  --accent: #fdd835;
-  --accent-hover: #fbc02d;
-  --border: #4a4a4a;
-  --input-bg: #272727;
+body[data-theme="light"] {
+  --bg: #f5f5f5;
+  --card: #ffffff;
+  --card-hover: #eeeeee;
+  --text: #1a1a1a;
+  --muted: #777777;
+  --accent: #000000;
+  --accent-hover: #333333;
+  --border: #dddddd;
+  --input-bg: #ffffff;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    --bg: #f6f6f6;
-    --card: #fff;
-    --card-hover: #f3f3f3;
-    --text: #222;
-    --muted: #666;
-    --accent: #fbc02d;
-    --accent-hover: #fdd835;
-    --border: #ddd;
-    --input-bg: #e0e0e0;
-  }
+body[data-theme="dark"] {
+  --bg: #121212;
+  --card: #1e1e1e;
+  --card-hover: #2a2a2a;
+  --text: #eaeaea;
+  --muted: #888888;
+  --accent: #ffffff;
+  --accent-hover: #cccccc;
+  --border: #2c2c2c;
+  --input-bg: #1a1a1a;
 }
 
 * {
@@ -38,6 +35,7 @@ body {
   display: flex;
   justify-content: center;
   padding: 2rem 1rem;
+  transition: all 0.2s;
 }
 
 .note-container {
@@ -49,44 +47,49 @@ body {
 header {
   display: flex;
   align-items: center;
-  position: relative;
-  margin-bottom: 2.5rem;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
 }
 
-header h1 {
-  font-size: 1.5rem;
-  font-weight: 600;
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
 }
 
+.theme-btn,
 .add-btn {
   font-size: 1.8rem;
   border: none;
   cursor: pointer;
   color: var(--accent);
-  position: absolute;
-  top: 0;
-  right: 0;
   padding: 0.1rem 0.6rem;
   background-color: var(--border);
   border-radius: 50%;
+  transition: transform 0.2s, background 0.2s, color 0.2s;
 }
 
+.theme-btn:hover,
 .add-btn:hover {
   color: var(--text);
+}
+
+.add-btn:active {
+  transform: rotate(90deg) scale(0.98);
 }
 
 /* Search */
 .search {
   width: 100%;
-  padding: 0.7rem 0.8rem;
-  border-radius: 6px;
+  padding: 0.9rem 0.8rem;
+  border-radius: 10px;
   background: var(--input-bg);
   color: var(--text);
   border: 2px solid transparent;
   outline: none;
-  margin-bottom: 1rem;
+  margin-bottom: 1.2rem;
   font-size: 0.85rem;
-  transition: border 0.2s;
+  transition: background 0.2s, border 0.2s;
 }
 
 .search:focus {
@@ -100,16 +103,31 @@ header h1 {
 /* Notes */
 .note {
   background: var(--card);
-  border-radius: 6px;
+  border-radius: 10px;
   padding: 0.8rem;
-  border-top: 2px solid var(--border);
   margin-bottom: 0.8rem;
   transition: background 0.2s, border-top 0.2s;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
 }
 
+@keyframes fadeOutSlide {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+.note.deleting {
+  animation: fadeOutSlide 0.3s ease forwards;
+}
+
 .note:focus-within {
-  border-top-color: var(--accent);
+  border-top: 6px solid var(--accent);
 }
 
 .note:hover {
@@ -136,6 +154,24 @@ header h1 {
   color: var(--accent);
 }
 
+.pin-btn {
+  color: var(--muted);
+  transition: color 0.2s;
+}
+
+.note.pinned {
+  border-top: 2px solid var(--accent);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.note.pinned:focus-within {
+  border-top: 6px solid var(--accent);
+}
+
+.note.pinned .pin-btn {
+  color: var(--accent);
+}
+
 /* Editor & Preview */
 .note-editor {
   width: 100%;
@@ -146,13 +182,13 @@ header h1 {
   color: var(--text);
   padding: 0.5rem;
   font-size: 0.95rem;
-  border-radius: 4px;
+  border-radius: 6px;
   outline: none;
   display: none;
 }
 
 .note-editor::-webkit-scrollbar {
-  width: 5px;
+  width: 8px;
 }
 
 .note-editor::-webkit-scrollbar-track {
@@ -178,15 +214,15 @@ header h1 {
   display: none;
 }
 
-/* Markdown Preview */
+/* Note Preview */
 .note-preview {
   font-size: 0.95rem;
   line-height: 1.4;
   padding: 0 0.6rem;
-  animation: fadeSlide 0.5s ease-out;
   display: -webkit-box;
-  -webkit-line-clamp: 15;
-  line-clamp: 15;
+  animation: fadeSlide 0.3s ease-out;
+  -webkit-line-clamp: 14;
+  line-clamp: 14;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -233,7 +269,30 @@ header h1 {
 
 /* Highlighted text */
 mark {
-  background-color: var(--accent-hover);
+  background-color: #cfd8dc;
+  color: #000;
   padding: 0.1rem 0.1rem;
   border-radius: 4px;
+}
+
+.toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  background: var(--card-hover);
+  color: var(--text);
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  font-size: 0.80rem;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  transform: scale(0.85) translateX(-50%);
+  pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s;
+  z-index: 999;
+}
+
+.toast.show {
+  transform: scale(1) translateX(-50%);
+  opacity: 1;
 }
