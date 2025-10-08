@@ -8,13 +8,19 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined">
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body data-theme="dark">
+
   <div class="note-container">
     <header>
-      <div class="add-btn">
-        <span class="material-symbols-outlined" title="Add new note">add</span>
-      </div>
       <h1>Scribbly</h1>
+      <div class="header-actions">
+        <div class="theme-btn" title="Toggle theme">
+          <span class="material-symbols-outlined">contrast</span>
+        </div>
+        <div class="add-btn">
+          <span class="material-symbols-outlined" title="Add new note">add</span>
+        </div>
+      </div>
     </header>
 
     <input type="text" class="search" placeholder="Search...">
@@ -22,6 +28,8 @@
 
     <div class="empty">No notes yet — click + to create one.</div>
   </div>
+
+  <div id="toast" class="toast hidden"></div>
 
   <script src="script.js"></script>
 </body>
