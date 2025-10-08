@@ -200,18 +200,18 @@ document.addEventListener('DOMContentLoaded', () => {
   notesEl.addEventListener('focusout', e => {
     if (!e.target.classList.contains('note-editor')) return;
     const note = e.target.closest('.note');
+
     setTimeout(() => {
       if (!note.contains(document.activeElement)) {
         const textArea = note.querySelector('.note-editor');
         const text = textArea.value.trim();
-        if (!text && text.length === 0) {
+        if (!text) {
           note.remove();
           updateEmptyState();
         } else {
           note.querySelector('.note-preview').innerHTML = text;
           note.classList.remove('editing');
           saveNotes();
-          sortNotes();
         }
       }
     }, 200);
