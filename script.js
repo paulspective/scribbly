@@ -77,12 +77,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Save notes to localStorage
   function saveNotes() {
-    if (note.querySelector('.note-editor').value.trim().length === 0) return;
-    const notes = [...document.querySelectorAll('.note')].map(note => ({
-      content: note.querySelector('.note-editor').value,
-      timestamp: note.dataset.timestamp || new Date().toISOString(),
-      pinned: note.classList.contains('pinned')
-    }));
+    const notes = [...document.querySelectorAll('.note')]
+      .filter(note => note.querySelector('.note-editor').value.trim().length > 0)
+      .map(note => ({
+        content: note.querySelector('.note-editor').value,
+        timestamp: note.dataset.timestamp || new Date().toISOString(),
+        pinned: note.classList.contains('pinned')
+      }));
     localStorage.setItem('scribblyNotes', JSON.stringify(notes));
   }
 
@@ -210,9 +211,10 @@ document.addEventListener('DOMContentLoaded', () => {
           note.querySelector('.note-preview').innerHTML = text;
           note.classList.remove('editing');
           saveNotes();
+          sortNotes();
         }
       }
-    }, 300);
+    }, 200);
   });
 
   function loadTheme() {
