@@ -3,8 +3,7 @@ function formatTimestamp(date) {
   const now = new Date();
   const diff = Math.floor((now - date) / 1000);
 
-  const pluralize = (value, unit) =>
-    `${value} ${unit}${value === 1 ? '' : 's'}`;
+  const pluralize = (value, unit) => `${value} ${unit}${value === 1 ? '' : 's'}`;
 
   if (diff < 10) return 'Just now';
   if (diff < 60) return `Last edited ${pluralize(diff, 'second')} ago`;
@@ -56,11 +55,10 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Filter notes by search term
     notes.forEach(note => {
       const textArea = note.querySelector('.note-editor');
       const text = textArea.value;
-      if (text.toLowerCase().includes(term.toLowerCase())) {
+      if (text.toLowerCase().includes(term)) {
         note.style.display = '';
         const highlighted = text.replace(
           new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'),
@@ -73,22 +71,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const visibleNotes = notes.filter(note => note.style.display !== 'none');
-    if (visibleNotes.length === 0) {
-      emptyEl.style.display = 'block';
-      emptyEl.textContent = 'No notes found.';
-    } else {
-      emptyEl.style.display = 'none';
-      updateEmptyState();
-    }
+    emptyEl.style.display = visibleNotes.length ? 'none' : 'block';
+    emptyEl.textContent = visibleNotes.length ? '' : 'No notes found.';
   });
 
   // Save notes to localStorage
   function saveNotes() {
-    const notes = [...document.querySelectorAll('.note')].map(note => {
-      const text = note.querySelector('.note-editor').value;
-      const ts = note.dataset.timestamp || new Date().toISOString();
-      return { content: text, timestamp: ts };
-    });
+    if (note.querySelector('.note-editor').value.trim().length === 0) return;
+    const notes = [...document.querySelectorAll('.note')].map(note => ({
+      content: note.querySelector('.note-editor').value,
+      timestamp: note.dataset.timestamp || new Date().toISOString(),
+      pinned: note.classList.contains('pinned')
+    }));
     localStorage.setItem('scribblyNotes', JSON.stringify(notes));
   }
 
@@ -99,16 +93,18 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Create a new note
-  function createNote(content = '', isNew = true, timestampStr = null) {
+  function createNote(content = '', isNew = true, timestampStr = null, pinned = false) {
     const note = document.createElement('div');
     note.className = 'note';
+    if (pinned) note.classList.add('pinned');
 
     const toolbar = document.createElement('div');
     toolbar.className = 'note-toolbar';
     toolbar.innerHTML = `
-        <span class="material-symbols-outlined edit-btn" title="Edit note">edit</span>
-        <span class="material-symbols-outlined delete-btn" title="Delete note">delete</span>
-      `;
+      <span class="material-symbols-outlined pin-btn" title="Pin note">${pinned ? 'keep' : 'keep_off'}</span>
+      <span class="material-symbols-outlined edit-btn" title="Edit note">edit_note</span>
+      <span class="material-symbols-outlined delete-btn" title="Delete note">delete</span>
+    `;
 
     const textArea = document.createElement('textarea');
     textArea.className = 'note-editor';
@@ -126,11 +122,12 @@ document.addEventListener('DOMContentLoaded', () => {
     timestamp.className = 'note-timestamp';
     timestamp.textContent = formatTimestamp(noteTimestamp);
 
-    note.addEventListener('click', () => {
+    note.addEventListener('dblclick', () => {
       note.classList.toggle('expanded');
     });
 
     textArea.addEventListener('input', () => {
+      if (textArea.value.trim().length === 0) return;
       preview.innerHTML = textArea.value;
       const now = new Date();
       note.dataset.timestamp = now.toISOString();
@@ -141,14 +138,25 @@ document.addEventListener('DOMContentLoaded', () => {
     toolbar.addEventListener('click', e => {
       if (e.target.classList.contains('edit-btn')) {
         note.classList.toggle('editing');
-        if (note.classList.contains('editing')) {
-          textArea.focus();
-        }
+        if (note.classList.contains('editing')) textArea.focus();
       }
+
       if (e.target.classList.contains('delete-btn')) {
-        note.remove();
-        updateEmptyState();
+        note.classList.add('deleting');
+        note.addEventListener('animationend', () => {
+          note.remove();
+          updateEmptyState();
+          saveNotes();
+          showToast('Note deleted');
+        }, { once: true });
+      }
+
+      if (e.target.classList.contains('pin-btn')) {
+        const pinned = note.classList.toggle('pinned');
+        e.target.textContent = pinned ? 'keep' : 'keep_off';
         saveNotes();
+        sortNotes();
+        showToast(pinned ? 'Note pinned' : 'Note unpinned');
       }
     });
 
@@ -167,10 +175,26 @@ document.addEventListener('DOMContentLoaded', () => {
     return note;
   }
 
-  // Add note
-  addBtn.addEventListener('click', () => createNote(''));
+  // Add new note
+  addBtn.addEventListener('click', () => {
+    const note = createNote('');
+    saveNotes();
+  });
 
-  updateEmptyState();
+  // Sort notes
+  function sortNotes() {
+    const notes = Array.from(notesEl.children);
+    notes.sort((a, b) => {
+      const aPinned = a.classList.contains('pinned');
+      const bPinned = b.classList.contains('pinned');
+      if (aPinned !== bPinned) return aPinned ? -1 : 1;
+
+      const aTime = new Date(a.dataset.timestamp).getTime();
+      const bTime = new Date(b.dataset.timestamp).getTime();
+      return bTime - aTime;
+    });
+    notes.forEach(note => notesEl.appendChild(note));
+  }
 
   notesEl.addEventListener('focusout', e => {
     if (!e.target.classList.contains('note-editor')) return;
@@ -179,7 +203,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!note.contains(document.activeElement)) {
         const textArea = note.querySelector('.note-editor');
         const text = textArea.value.trim();
-        if (!text) {
+        if (!text && text.length === 0) {
           note.remove();
           updateEmptyState();
         } else {
@@ -188,30 +212,55 @@ document.addEventListener('DOMContentLoaded', () => {
           saveNotes();
         }
       }
-    }, 200);
+    }, 300);
   });
 
-  // Load existing notes and restore their timestamps
+  function loadTheme() {
+    const savedTheme = localStorage.getItem('scribblyTheme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const theme = savedTheme || (prefersDark ? 'dark' : 'light');
+    document.body.setAttribute('data-theme', theme);
+  }
+
+  function toggleTheme() {
+    const current = document.body.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.body.setAttribute('data-theme', next);
+    localStorage.setItem('scribblyTheme', next);
+    showToast(`Switched to ${next.charAt(0).toUpperCase() + next.slice(1)} Mode`);
+  }
+
+  document.querySelector('.theme-btn').addEventListener('click', toggleTheme);
+
+  function showToast(message = 'Theme switched') {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.classList.add('show');
+    setTimeout(() => {
+      toast.classList.remove('show');
+    }, 2000);
+  }
+
+  // Load notes
   function loadNotes() {
     const stored = JSON.parse(localStorage.getItem('scribblyNotes') || '[]');
     stored.forEach(item => {
-      if (typeof item === 'object' && item.content !== undefined && item.timestamp !== undefined) {
-        createNote(item.content, false, item.timestamp);
-      } else {
-        createNote(item, false);
+      if (typeof item === 'object') {
+        createNote(item.content || '', false, item.timestamp, item.pinned || false);
       }
     });
+    sortNotes();
   }
 
+  loadTheme();
   loadNotes();
+
+  // Update timestamps every 30s
   setInterval(() => {
-    const notes = document.querySelectorAll('.note');
-    notes.forEach(note => {
+    document.querySelectorAll('.note').forEach(note => {
       const ts = new Date(note.dataset.timestamp);
       const tsEl = note.querySelector('.note-timestamp');
-      if (tsEl) {
-        tsEl.textContent = formatTimestamp(ts);
-      }
+      if (tsEl) tsEl.textContent = formatTimestamp(ts);
     });
   }, 30 * 1000);
 });
