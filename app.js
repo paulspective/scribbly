@@ -99,14 +99,16 @@ document.addEventListener('DOMContentLoaded', () => {
     note.className = 'note';
     if (pinned) note.classList.add('pinned');
 
+    // Toolbar
     const toolbar = document.createElement('div');
     toolbar.className = 'note-toolbar';
     toolbar.innerHTML = `
-      <span class="material-symbols-outlined pin-btn" title="Pin note">${pinned ? 'keep' : 'keep_off'}</span>
-      <span class="material-symbols-outlined edit-btn" title="Edit note">edit_note</span>
-      <span class="material-symbols-outlined delete-btn" title="Delete note">delete</span>
-    `;
+    <span class="material-symbols-outlined pin-btn" title="Pin note">${pinned ? 'keep' : 'keep_off'}</span>
+    <span class="material-symbols-outlined edit-btn" title="Edit note">edit_note</span>
+    <span class="material-symbols-outlined delete-btn" title="Delete note">delete</span>
+  `;
 
+    // Elements
     const textArea = document.createElement('textarea');
     textArea.className = 'note-editor';
     textArea.placeholder = 'Write something...';
@@ -116,38 +118,30 @@ document.addEventListener('DOMContentLoaded', () => {
     preview.className = 'note-preview';
     preview.innerHTML = content;
 
+    const timestampEl = document.createElement('div');
+    timestampEl.className = 'note-timestamp';
     const noteTimestamp = timestampStr ? new Date(timestampStr) : new Date();
+    timestampEl.textContent = formatTimestamp(noteTimestamp);
     note.dataset.timestamp = noteTimestamp.toISOString();
 
-    const timestamp = document.createElement('div');
-    timestamp.className = 'note-timestamp';
-    timestamp.textContent = formatTimestamp(noteTimestamp);
 
-    note.addEventListener('dblclick', () => {
-      note.classList.toggle('expanded');
-    });
+    note._refs = { textArea, preview, timestampEl };
 
+    // Events
     textArea.addEventListener('input', () => {
       if (textArea.value.trim().length === 0) return;
       preview.innerHTML = textArea.value;
       const now = new Date();
       note.dataset.timestamp = now.toISOString();
-      timestamp.textContent = formatTimestamp(now);
+      timestampEl.textContent = formatTimestamp(now);
       saveNotes();
     });
 
     toolbar.addEventListener('click', e => {
-      const editBtn = e.target.closest('.edit-btn');
-      if (!editBtn) return;
-
-      note.classList.toggle('editing');
-
-      if (note.classList.contains('editing')) {
-        textArea.focus();
-      } else {
-        preview.innerHTML = textArea.value;
+      if (e.target.closest('.edit-btn')) {
+        note.classList.toggle('editing');
+        if (note.classList.contains('editing')) note._refs.textArea.focus();
       }
-
 
       if (e.target.classList.contains('delete-btn')) {
         note.classList.add('deleting');
@@ -160,18 +154,18 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       if (e.target.classList.contains('pin-btn')) {
-        const pinned = note.classList.toggle('pinned');
-        e.target.textContent = pinned ? 'keep' : 'keep_off';
+        const isPinned = note.classList.toggle('pinned');
+        e.target.textContent = isPinned ? 'keep' : 'keep_off';
         saveNotes();
         sortNotes();
-        showToast(pinned ? 'Note pinned' : 'Note unpinned');
+        showToast(isPinned ? 'Note pinned' : 'Note unpinned');
       }
     });
 
     note.appendChild(toolbar);
     note.appendChild(textArea);
     note.appendChild(preview);
-    note.appendChild(timestamp);
+    note.appendChild(timestampEl);
     notesEl.insertBefore(note, notesEl.firstChild);
 
     if (isNew) {
@@ -207,21 +201,15 @@ document.addEventListener('DOMContentLoaded', () => {
   notesEl.addEventListener('focusout', e => {
     if (!e.target.classList.contains('note-editor')) return;
     const note = e.target.closest('.note');
+    const textArea = note._refs.textArea;
+    const text = textArea.value.trim();
 
-    setTimeout(() => {
-      if (!note.contains(document.activeElement)) {
-        const textArea = note.querySelector('.note-editor');
-        const text = textArea.value.trim();
-        if (!text) {
-          note.remove();
-          updateEmptyState();
-        } else {
-          note.querySelector('.note-preview').innerHTML = text;
-          note.classList.remove('editing');
-          saveNotes();
-        }
-      }
-    }, 200);
+    // Only remove note if empty
+    if (!text) {
+      note.remove();
+      updateEmptyState();
+      saveNotes();
+    }
   });
 
   function loadTheme() {
@@ -264,7 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       toastTimeout = setTimeout(() => {
         toast.classList.remove('show');
-        setTimeout(displayNextToast, 200);
+        yydisplayNextToast;
       }, 2000);
     }
   }
@@ -283,12 +271,13 @@ document.addEventListener('DOMContentLoaded', () => {
   loadTheme();
   loadNotes();
 
-  // Update timestamps every 30s
+  // Update timestamps every 60s
   setInterval(() => {
     document.querySelectorAll('.note').forEach(note => {
       const ts = new Date(note.dataset.timestamp);
-      const tsEl = note.querySelector('.note-timestamp');
-      if (tsEl) tsEl.textContent = formatTimestamp(ts);
+      if (note._refs && note._refs.timestampEl) {
+        note._refs.timestampEl.textContent = formatTimestamp(ts);
+      }
     });
   }, 60 * 1000);
 
