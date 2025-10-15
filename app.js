@@ -138,12 +138,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     toolbar.addEventListener('click', e => {
-      if (e.target.classList.contains('edit-btn')) {
+      const editBtn = e.target.closest('.edit-btn');
+      if (editBtn) {
         note.classList.toggle('editing');
-        if (note.classList.contains('editing')) textArea.focus();
+        if (note.classList.contains('editing')) note._refs.textArea.focus();
       }
 
-      if (e.target.classList.contains('delete-btn')) {
+      const deleteBtn = e.target.closest('.delete-btn');
+      if (deleteBtn) {
         note.classList.add('deleting');
         note.addEventListener('animationend', () => {
           note.remove();
@@ -153,9 +155,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }, { once: true });
       }
 
-      if (e.target.classList.contains('pin-btn')) {
+      const pinBtn = e.target.closest('.pin-btn');
+      if (pinBtn) {
         const isPinned = note.classList.toggle('pinned');
-        e.target.textContent = isPinned ? 'keep' : 'keep_off';
+        pinBtn.textContent = isPinned ? 'keep' : 'keep_off';
         saveNotes();
         sortNotes();
         showToast(isPinned ? 'Note pinned' : 'Note unpinned');
@@ -260,7 +263,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       toastTimeout = setTimeout(() => {
         toast.classList.remove('show');
-        displayNextToast;
+        yydisplayNextToast;
       }, 2000);
     }
   }
