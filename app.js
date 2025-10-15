@@ -210,11 +210,10 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    note.querySelector('.note-preview').innerHTML = text;
     note.classList.remove('editing');
     const now = new Date();
     note.dataset.timestamp = now.toISOString();
-    note.timestampEl.textContent = formatTimestamp(now);
+    note.querySelector(note - timestamp).textContent = formatTimestamp(now);
     saveNotes();
   });
 
