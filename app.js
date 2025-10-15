@@ -201,20 +201,20 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!e.target.classList.contains('note-editor')) return;
     const note = e.target.closest('.note');
 
-    const textArea = note.querySelector('.note-editor');
-    const text = textArea.value.trim();
-    if (!text) {
-      note.remove();
-      updateEmptyState();
-      saveNotes();
-      return;
-    }
-
-    note.classList.remove('editing');
-    const now = new Date();
-    note.dataset.timestamp = now.toISOString();
-    note.querySelector(note - timestamp).textContent = formatTimestamp(now);
-    saveNotes();
+    setTimeout(() => {
+      if (!note.contains(document.activeElement)) {
+        const textArea = note.querySelector('.note-editor');
+        const text = textArea.value.trim();
+        if (!text) {
+          note.remove();
+          updateEmptyState();
+        } else {
+          note.querySelector('.note-preview').innerHTML = text;
+          note.classList.remove('editing');
+          saveNotes();
+        }
+      }
+    }, 200);
   });
 
   function loadTheme() {
@@ -283,7 +283,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const tsEl = note.querySelector('.note-timestamp');
       if (tsEl) tsEl.textContent = formatTimestamp(ts);
     });
-  }, 30 * 1000);
+  }, 60 * 1000);
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
