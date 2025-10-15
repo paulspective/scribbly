@@ -1,4 +1,4 @@
-const CACHE_NAME = 'scribbly-cache-v1';
+const CACHE_NAME = 'scribbly-cache-v2';
 
 const FILES_TO_CACHE = [
   'index.html',
