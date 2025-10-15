@@ -137,10 +137,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     toolbar.addEventListener('click', e => {
-      if (e.target.classList.contains('edit-btn')) {
-        note.classList.toggle('editing');
-        if (note.classList.contains('editing')) textArea.focus();
+      const editBtn = e.target.closest('.edit-btn');
+      if (!editBtn) return;
+
+      note.classList.toggle('editing');
+
+      if (note.classList.contains('editing')) {
+        textArea.focus();
+      } else {
+        preview.innerHTML = textArea.value;
       }
+
 
       if (e.target.classList.contains('delete-btn')) {
         note.classList.add('deleting');
