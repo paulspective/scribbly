@@ -138,12 +138,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     toolbar.addEventListener('click', e => {
-      if (e.target.closest('.edit-btn')) {
-        note.classList.toggle('editing');
-        if (note.classList.contains('editing')) note._refs.textArea.focus();
+      const editBtn = e.target.closest('.edit-btn');
+      if (editBtn) {
+        const isEditing = note.classList.toggle('editing');
+        if (isEditing) {
+          note._refs.textArea.focus();
+          editBtn.textContent = 'save';
+        } else {
+          note._refs.preview.innerHTML = note._refs.textArea.value;
+          saveNotes();
+          editBtn.textContent = 'edit_note';
+        }
       }
 
-      if (e.target.classList.contains('delete-btn')) {
+      const deleteBtn = e.target.closest('.delete-btn');
+      if (deleteBtn) {
         note.classList.add('deleting');
         note.addEventListener('animationend', () => {
           note.remove();
@@ -153,7 +162,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }, { once: true });
       }
 
-      if (e.target.classList.contains('pin-btn')) {
+      const pinBtn = e.target.closest('.pin-btn');
+      if (pinBtn) {
         const isPinned = note.classList.toggle('pinned');
         e.target.textContent = isPinned ? 'keep' : 'keep_off';
         saveNotes();
@@ -171,6 +181,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (isNew) {
       note.classList.add('editing');
       textArea.focus();
+      const editBtn = toolbar.querySelector('.edit-btn');
+      if (editBtn) editBtn.textContent = 'save';
     }
 
     updateEmptyState();
@@ -252,7 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       toastTimeout = setTimeout(() => {
         toast.classList.remove('show');
-        yydisplayNextToast;
+        displayNextToast();
       }, 2000);
     }
   }
