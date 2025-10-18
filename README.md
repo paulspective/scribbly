@@ -6,7 +6,6 @@
 - Smart timestamp formatting
 - Keyword search with highlighting
 - Light/Dark theme toggle
-- Works offline (service worker enabled)
 - Toast notifications for actions
 
 ## 🚀 How to Use
