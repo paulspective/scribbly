@@ -1,10 +1,9 @@
-const CACHE_VERSION = 'v3';
+const CACHE_VERSION = 'v4';
 const CACHE_NAME = `notes-cache-${CACHE_VERSION}`;
 const FILES_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/style.css',
-  '/app.js'
+  'scribbly/index.html',
+  'scribbly/style.css',
+  'scribbly/app.js'
 ];
 
 self.addEventListener('install', event => {
