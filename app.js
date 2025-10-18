@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const isEditing = note.classList.toggle('editing');
         if (isEditing) {
           note._refs.textArea.focus();
-          editBtn.textContent = 'save';
+          editBtn.textContent = 'done';
         } else {
           note._refs.preview.innerHTML = note._refs.textArea.value;
           saveNotes();
@@ -182,7 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
       note.classList.add('editing');
       textArea.focus();
       const editBtn = toolbar.querySelector('.edit-btn');
-      if (editBtn) editBtn.textContent = 'save';
+      if (editBtn) editBtn.textContent = 'done';
     }
 
     updateEmptyState();
@@ -216,7 +216,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const textArea = note._refs.textArea;
     const text = textArea.value.trim();
 
-    // Only remove note if empty
     if (!text) {
       note.remove();
       updateEmptyState();
@@ -295,7 +294,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./serviceWorker.js')
+      navigator.serviceWorker.register('service_worker.js')
         .then(() => {
           console.log('Service Worker registered!');
         }).catch(err => {
