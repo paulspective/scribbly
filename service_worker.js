@@ -1,10 +1,10 @@
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2';
 const CACHE_NAME = `notes-cache-${CACHE_VERSION}`;
 const FILES_TO_CACHE = [
   '/',
   'index.html',
   'style.css',
-  'app.js',
+  'app.js'
 ];
 
 self.addEventListener('install', event => {
@@ -24,6 +24,11 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
+  if (event.request.url.startsWith('https://fonts.googleapis.com') ||
+    event.request.url.startsWith('https://fonts.gstatic.com')) {
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then(response => response || fetch(event.request))
   );
