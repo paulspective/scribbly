@@ -186,6 +186,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     updateEmptyState();
+
+    note.addEventListener('dblclick', () => {
+      note.classList.toggle('expanded');
+    });
+
     return note;
   }
 
