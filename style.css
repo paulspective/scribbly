@@ -1,3 +1,4 @@
+/* Theme variables */
 body[data-theme="light"] {
   --bg: #f5f5f5;
   --card: #ffffff;
@@ -22,21 +23,23 @@ body[data-theme="dark"] {
   --input-bg: #1a1a1a;
 }
 
+/* Global styles */
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: 'Open Sans', sans-serif;
+  font-family: 'Manrope', sans-serif;
   -webkit-tap-highlight-color: transparent;
 }
 
 body {
   background: var(--bg);
   color: var(--text);
+  font-weight: 300;
   display: flex;
   justify-content: center;
   padding: 2rem 1rem;
-  transition: all 0.2s;
+  transition: background 0.2s, color 0.2s;
 }
 
 .note-container {
@@ -49,7 +52,13 @@ header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.8rem;
+}
+
+header h1 {
+  font-weight: 300;
+  letter-spacing: 0.03em;
+  font-size: 1.6rem;
 }
 
 .header-actions {
@@ -74,7 +83,7 @@ header {
   transform: rotate(90deg) scale(0.98);
 }
 
-/* Search */
+/* Search bar */
 .search {
   width: 100%;
   padding: 0.9rem 0.8rem;
@@ -83,7 +92,7 @@ header {
   color: var(--text);
   border: 2px solid transparent;
   outline: none;
-  margin-bottom: 1.2rem;
+  margin-bottom: 1.5rem;
   font-size: 0.85rem;
   transition: background 0.2s, border 0.2s;
 }
@@ -103,10 +112,33 @@ header {
   padding: 0.8rem;
   margin-bottom: 0.8rem;
   border-top: 6px solid transparent;
-  transition: background 0.2s, border-top 0.2s, box-shadow 0.2s;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  transition: background 0.25s, border-top 0.25s, box-shadow 0.25s, transform 0.25s;
 }
 
+/* Themed shadows */
+body[data-theme="light"] .note {
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+}
+
+body[data-theme="dark"] .note {
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* Hover lift */
+.note:hover {
+  background: var(--card-hover);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
+}
+
+.note:hover .note-toolbar {
+  opacity: 1;
+}
+
+.note.editing .note-toolbar {
+  opacity: 1;
+}
+
+/* Fade animation on delete */
 @keyframes fadeOutSlide {
   from {
     opacity: 1;
@@ -123,23 +155,26 @@ header {
   animation: fadeOutSlide 0.3s ease forwards;
 }
 
-.note:focus-within {
-  border-top: 6px solid var(--accent);
+/* Pinned note */
+.note.pinned {
+  position: relative;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
 }
 
-.note:hover {
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-  background: var(--card-hover);
+.note.pinned::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 8px;
+  width: 3px;
+  background: var(--accent);
+  border-radius: 3px;
+  opacity: 0.85;
 }
 
-.note:hover .note-toolbar {
-  opacity: 1;
-  pointer-events: all;
-}
-
-.note.editing .note-toolbar {
-  opacity: 1;
-  pointer-events: all;
+.note.pinned .pin-btn {
+  color: var(--accent);
 }
 
 /* Toolbar */
@@ -148,9 +183,8 @@ header {
   justify-content: flex-end;
   gap: 0.6rem;
   margin-bottom: 0.7rem;
-  opacity: 0;
+  opacity: 0.4;
   transition: opacity 0.2s;
-  pointer-events: none;
 }
 
 .note-toolbar .material-symbols-outlined {
@@ -161,24 +195,6 @@ header {
 }
 
 .note-toolbar .material-symbols-outlined:hover {
-  color: var(--accent);
-}
-
-.pin-btn {
-  color: var(--muted);
-  transition: color 0.2s;
-}
-
-.note.pinned {
-  border-top: 2px solid var(--accent);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-}
-
-.note.pinned:focus-within {
-  border-top: 6px solid var(--accent);
-}
-
-.note.pinned .pin-btn {
   color: var(--accent);
 }
 
@@ -201,14 +217,8 @@ header {
   width: 8px;
 }
 
-.note-editor::-webkit-scrollbar-track {
-  background: var(--input-bg);
-  border-radius: 4px;
-}
-
 .note-editor::-webkit-scrollbar-thumb {
   background: var(--muted);
-  cursor: default;
   border-radius: 4px;
 }
 
@@ -224,10 +234,10 @@ header {
   display: none;
 }
 
-/* Note Preview */
+/* Note preview */
 .note-preview {
   font-size: 0.95rem;
-  line-height: 1.4;
+  line-height: 1.55;
   padding: 0 0.6rem;
   display: -webkit-box;
   animation: fadeSlide 0.2s;
@@ -237,6 +247,7 @@ header {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: pre-wrap;
+  cursor: text;
 }
 
 .note.expanded .note-preview {
@@ -265,6 +276,8 @@ header {
 .empty {
   color: var(--muted);
   text-align: center;
+  opacity: 0.9;
+  letter-spacing: 0.01em;
   padding: 3.2rem 1rem;
 }
 
@@ -277,14 +290,15 @@ header {
   font-style: italic;
 }
 
-/* Highlighted text */
+/* Highlight */
 mark {
   background-color: #cfd8dc;
   color: #000;
   padding: 0.1rem;
-  border-radius: 4px;
+  border-radius: 6px 6px 0 0;
 }
 
+/* Toast */
 .toast {
   position: fixed;
   bottom: 2rem;
@@ -293,15 +307,15 @@ mark {
   color: var(--text);
   padding: 0.6rem 1rem;
   border-radius: 6px;
-  font-size: 0.80rem;
+  font-size: 0.8rem;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
   opacity: 0;
   transform: scale(0.85) translateX(-50%);
-  transition: opacity 0.2s, transform 0.2s;
+  transition: opacity 0.25s ease, transform 0.25s ease;
   z-index: 999;
 }
 
 .toast.show {
-  transform: scale(1) translateX(-50%);
+  transform: translate(-50%, -10px) scale(1);
   opacity: 1;
 }
