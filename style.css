@@ -132,12 +132,25 @@ header {
   background: var(--card-hover);
 }
 
+.note:hover .note-toolbar {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.note.editing .note-toolbar {
+  opacity: 1;
+  pointer-events: all;
+}
+
 /* Toolbar */
 .note-toolbar {
   display: flex;
   justify-content: flex-end;
   gap: 0.6rem;
   margin-bottom: 0.7rem;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
 }
 
 .note-toolbar .material-symbols-outlined {

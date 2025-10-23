@@ -240,37 +240,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const next = current === 'dark' ? 'light' : 'dark';
     document.body.setAttribute('data-theme', next);
     localStorage.setItem('scribblyTheme', next);
-    showToast(`Switched to ${next.charAt(0).toUpperCase() + next.slice(1)} Mode`);
   }
 
   document.querySelector('.theme-btn').addEventListener('click', toggleTheme);
 
   // Toast
-  const toastQueue = [];
-  let toastTimeout = null;
-
   function showToast(message = 'Theme switched') {
     const toast = document.getElementById('toast');
-    toastQueue.push(message);
 
-    if (!toastTimeout) {
-      displayNextToast();
-    }
+    toast.textContent = message;
+    toast.classList.add('show');
 
-    function displayNextToast() {
-      if (toastQueue.length === 0) {
-        toastTimeout = null;
-        return;
-      }
-
-      toast.textContent = toastQueue.shift();
-      toast.classList.add('show');
-
-      toastTimeout = setTimeout(() => {
-        toast.classList.remove('show');
-        displayNextToast();
-      }, 2000);
-    }
+    setTimeout(() => {
+      toast.classList.remove('show');
+    }, 2000);
   }
 
   // Load notes
