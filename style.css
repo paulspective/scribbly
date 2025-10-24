@@ -98,7 +98,7 @@ header h1 {
 }
 
 .search:focus {
-  border: 2px solid var(--accent);
+  border-color: var(--accent);
 }
 
 ::placeholder {
@@ -111,7 +111,6 @@ header h1 {
   border-radius: 10px;
   padding: 0.8rem;
   margin-bottom: 0.8rem;
-  border-top: 6px solid transparent;
   transition: background 0.25s, border-top 0.25s, box-shadow 0.25s, transform 0.25s;
 }
 
@@ -166,7 +165,7 @@ body[data-theme="dark"] .note {
   position: absolute;
   left: 0;
   top: 6px;
-  bottom: 8px;
+  bottom: 10px;
   width: 3px;
   background: var(--accent);
   border-radius: 3px;
@@ -201,7 +200,7 @@ body[data-theme="dark"] .note {
 /* Editor & Preview */
 .note-editor {
   width: 100%;
-  min-height: 300px;
+  min-height: 250px;
   border: none;
   resize: vertical;
   background: var(--input-bg);
@@ -214,7 +213,7 @@ body[data-theme="dark"] .note {
 }
 
 .note-editor::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 .note-editor::-webkit-scrollbar-thumb {
@@ -224,6 +223,7 @@ body[data-theme="dark"] .note {
 
 .note-editor::-webkit-scrollbar-thumb:hover {
   background: var(--accent-hover);
+  cursor: default;
 }
 
 .note.editing .note-editor {
@@ -241,13 +241,13 @@ body[data-theme="dark"] .note {
   padding: 0 0.6rem;
   display: -webkit-box;
   animation: fadeSlide 0.2s;
-  -webkit-line-clamp: 14;
-  line-clamp: 14;
+  -webkit-line-clamp: 10;
+  line-clamp: 10;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: pre-wrap;
-  cursor: text;
+  cursor: default;
 }
 
 .note.expanded .note-preview {
@@ -294,8 +294,7 @@ body[data-theme="dark"] .note {
 mark {
   background-color: #cfd8dc;
   color: #000;
-  padding: 0.1rem;
-  border-radius: 6px 6px 0 0;
+  border-radius: 4px 4px 0 0;
 }
 
 /* Toast */

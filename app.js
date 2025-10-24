@@ -147,6 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
           note._refs.preview.innerHTML = note._refs.textArea.value;
           saveNotes();
+          sortNotes();
           editBtn.textContent = 'edit_note';
         }
       }
@@ -247,13 +248,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // Toast
   function showToast(message = 'Theme switched') {
     const toast = document.getElementById('toast');
-
     toast.textContent = message;
     toast.classList.add('show');
 
     setTimeout(() => {
       toast.classList.remove('show');
-    }, 2000);
+    }, 1500);
   }
 
   // Load notes
