@@ -2,34 +2,27 @@
 function formatTimestamp(date) {
   const now = new Date();
   const diff = Math.floor((now - date) / 1000);
-
-  const pluralize = (value, unit) => `${value} ${unit}${value === 1 ? '' : 's'}`;
-
-  if (diff < 10) return 'Just now';
-  if (diff < 60) return `Last edited ${pluralize(diff, 'second')} ago`;
-
   const minutes = Math.floor(diff / 60);
-  if (minutes < 60) return `Last edited ${pluralize(minutes, 'minute')} ago`;
-
   const hours = Math.floor(diff / 3600);
-  if (hours < 24) return `Last edited ${pluralize(hours, 'hour')} ago`;
-
   const days = Math.floor(diff / 86400);
-  if (days === 1) return 'Last edited Yesterday';
-  if (days === 7) return 'Last edited Last week';
-  if (days < 7) {
-    const weekday = date.toLocaleString('en-US', { weekday: 'long' });
-    return `Last edited ${weekday}`;
-  }
+  const weeks = Math.floor(days / 7);
 
   const day = date.getDate();
   const month = date.toLocaleString('en-US', { month: 'short' });
   const year = date.getFullYear();
 
+  if (diff < 60) return 'Updated Just now';
+  if (minutes < 60) return `Updated ${minutes} minute${minutes === 1 ? '' : 's'} ago`;
+  if (hours < 24) return `Updated ${hours} hour${hours === 1 ? '' : 's'} ago`;
+  if (days === 1) return 'Updated Yesterday';
+  if (days < 7) return `Updated ${days} day${days === 1 ? '' : 's'} ago`;
+  if (weeks === 1) return 'Updated Last week';
+  if (weeks < 4) return `Updated ${weeks} week${weeks === 1 ? '' : 's'} ago`;
+
   if (year === now.getFullYear()) {
-    return `Last edited ${day} ${month}`;
+    return `Updated ${day} ${month}`;
   } else {
-    return `Last edited ${day} ${month}, ${year}`;
+    return `Updated ${day} ${month}, ${year}`;
   }
 }
 

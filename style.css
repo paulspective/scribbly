@@ -164,8 +164,8 @@ body[data-theme="dark"] .note {
   content: '';
   position: absolute;
   left: 0;
-  top: 6px;
-  bottom: 10px;
+  top: 8px;
+  bottom: 8px;
   width: 3px;
   background: var(--accent);
   border-radius: 3px;
