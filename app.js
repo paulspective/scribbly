@@ -272,4 +272,14 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }, 60 * 1000);
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(console.log('Service Worker Registered'))
+        .catch(err => {
+          console.error('Service Worker registration failed:', err);
+        });
+    });
+  }
 });
