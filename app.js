@@ -11,7 +11,7 @@ function formatTimestamp(date) {
   const month = date.toLocaleString('en-US', { month: 'short' });
   const year = date.getFullYear();
 
-  if (diff < 60) return 'Updated Just now';
+  if (diff < 60) return 'Updated just now';
   if (minutes < 60) return `Updated ${minutes} minute${minutes === 1 ? '' : 's'} ago`;
   if (hours < 24) return `Updated ${hours} hour${hours === 1 ? '' : 's'} ago`;
   if (days === 1) return 'Updated Yesterday';
