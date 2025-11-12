@@ -44,6 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
         note.querySelector('.note-preview').innerHTML = textArea.value;
       });
       emptyEl.style.display = notes.length ? 'none' : 'block';
+      emptyEl.textContent = 'No notes yet. Start scribbling.';
       return;
     }
 
