@@ -11,7 +11,6 @@
 ## 🚀 How to Use
 
 Just open **[Scribbly](https://paulspective.github.io/scribbly)** in your browser and start typing. Notes are saved automatically and stay on your device.
-Just open Scribbly in your browser and start typing. Notes are saved automatically and stay on your device.
 
 - Click + to start scribbling
 - Hover on a note to reveal the toolbar
