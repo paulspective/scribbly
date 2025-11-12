@@ -130,10 +130,12 @@ body[data-theme="dark"] .note {
 }
 
 .note:hover .note-toolbar {
+  pointer-events: all;
   opacity: 1;
 }
 
 .note.editing .note-toolbar {
+  pointer-events: all;
   opacity: 1;
 }
 
@@ -182,7 +184,8 @@ body[data-theme="dark"] .note {
   justify-content: flex-end;
   gap: 0.6rem;
   margin-bottom: 0.7rem;
-  opacity: 0.4;
+  opacity: 0;
+  pointer-events: none;
   transition: opacity 0.2s;
 }
 
@@ -317,4 +320,5 @@ mark {
 .toast.show {
   transform: translate(-50%, -10px) scale(1);
   opacity: 1;
+
 }
