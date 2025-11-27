@@ -307,8 +307,4 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
   }
-<<<<<<< HEAD
-});  
-=======
 });
->>>>>>> 656db3c7586f8811906464ce3b1152f66451316f
