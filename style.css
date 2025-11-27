@@ -23,28 +23,35 @@ body[data-theme="dark"] {
   --input-bg: #1a1a1a;
 }
 
+@font-face {
+  font-family: 'Manrope';
+  src: url(./assets/Manrope-Light.ttf) format('truetype');
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: 'Manrope';
+  src: url(./assets/Manrope-Regular.ttf) format('truetype');
+  font-weight: 400;
+}
+
 /* Global styles */
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
   font-family: 'Manrope', sans-serif;
+  font-weight: 300;
   -webkit-tap-highlight-color: transparent;
 }
 
 body {
   background: var(--bg);
   color: var(--text);
-  font-weight: 300;
   display: flex;
   justify-content: center;
   padding: 2rem 1rem;
   transition: background 0.2s, color 0.2s;
-}
-
-.note-container {
-  width: 100%;
-  max-width: 400px;
 }
 
 /* Header */
@@ -56,7 +63,7 @@ header {
 }
 
 header h1 {
-  font-weight: 300;
+  font-weight: 400;
   letter-spacing: 0.03em;
   font-size: 1.6rem;
 }
@@ -106,7 +113,14 @@ header h1 {
 }
 
 /* Notes */
+.note-container {
+  width: 100%;
+  max-width: 400px;
+}
+
 .note {
+  width: 100%;
+  max-width: 100%;
   background: var(--card);
   border-radius: 10px;
   padding: 0.8rem;
@@ -130,12 +144,20 @@ body[data-theme="dark"] .note {
 }
 
 .note:hover .note-toolbar {
+<<<<<<< HEAD
+  transform: translateY(0);
+=======
   pointer-events: all;
+>>>>>>> 656db3c7586f8811906464ce3b1152f66451316f
   opacity: 1;
 }
 
 .note.editing .note-toolbar {
+<<<<<<< HEAD
+  transform: translateY(0);
+=======
   pointer-events: all;
+>>>>>>> 656db3c7586f8811906464ce3b1152f66451316f
   opacity: 1;
 }
 
@@ -185,8 +207,13 @@ body[data-theme="dark"] .note {
   gap: 0.6rem;
   margin-bottom: 0.7rem;
   opacity: 0;
+<<<<<<< HEAD
+  transform: translateY(-5px);
+  transition: transform 0.2s, opacity 0.2s;
+=======
   pointer-events: none;
   transition: opacity 0.2s;
+>>>>>>> 656db3c7586f8811906464ce3b1152f66451316f
 }
 
 .note-toolbar .material-symbols-outlined {
@@ -235,6 +262,29 @@ body[data-theme="dark"] .note {
 
 .note.editing .note-timestamp {
   display: none;
+}
+
+.note-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.6rem;
+}
+
+.note-title {
+  flex: 1;
+  font-weight: 400;
+  font-size: 1.25rem;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--text);
+  margin-right: 0.3rem;
+  padding: 0.2rem 0.4rem;
+}
+
+.note-title::placeholder {
+  color: var(--muted);
 }
 
 /* Note preview */
