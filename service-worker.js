@@ -5,7 +5,9 @@ const BASE_PATH = self.location.pathname.includes('/scribbly/') ? '/scribbly' : 
 const FILES_TO_CACHE = [
   `${BASE_PATH}/index.html`,
   `${BASE_PATH}/style.css`,
-  `${BASE_PATH}/app.js`
+  `${BASE_PATH}/app.js`,
+  `${BASE_PATH}/assets/Manrope-Light.ttf`,
+  `${BASE_PATH}/assets/Manrope-Regular.ttf`
 ];
 
 self.addEventListener('install', event => {
@@ -28,9 +30,8 @@ self.addEventListener('activate', event => {
 
 self.addEventListener('fetch', event => {
   const url = event.request.url;
-  if (url.startsWith('https://fonts.googleapis.com') || url.startsWith('https://fonts.gstatic.com')) {
-    return;
-  }
+  if (url.startsWith('https://fonts.gstatic.com')) return;
+
 
   event.respondWith(
     caches.open(CACHE_NAME).then(async cache => {
