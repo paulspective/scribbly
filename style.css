@@ -115,7 +115,8 @@ header h1 {
 /* Notes */
 .note-container {
   width: 100%;
-  max-width: 400px;
+  max-width: 450px;
+  margin: 0 auto;
 }
 
 .note {
@@ -144,20 +145,14 @@ body[data-theme="dark"] .note {
 }
 
 .note:hover .note-toolbar {
-<<<<<<< HEAD
   transform: translateY(0);
-=======
   pointer-events: all;
->>>>>>> 656db3c7586f8811906464ce3b1152f66451316f
   opacity: 1;
 }
 
 .note.editing .note-toolbar {
-<<<<<<< HEAD
   transform: translateY(0);
-=======
   pointer-events: all;
->>>>>>> 656db3c7586f8811906464ce3b1152f66451316f
   opacity: 1;
 }
 
@@ -207,13 +202,9 @@ body[data-theme="dark"] .note {
   gap: 0.6rem;
   margin-bottom: 0.7rem;
   opacity: 0;
-<<<<<<< HEAD
-  transform: translateY(-5px);
-  transition: transform 0.2s, opacity 0.2s;
-=======
+  transform: translateY(-8px);
   pointer-events: none;
-  transition: opacity 0.2s;
->>>>>>> 656db3c7586f8811906464ce3b1152f66451316f
+  transition: transform 0.2s, opacity 0.2s;
 }
 
 .note-toolbar .material-symbols-outlined {
@@ -274,7 +265,7 @@ body[data-theme="dark"] .note {
 .note-title {
   flex: 1;
   font-weight: 400;
-  font-size: 1.25rem;
+  font-size: 1.2rem;
   border: none;
   outline: none;
   background: transparent;
