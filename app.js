@@ -125,7 +125,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const preview = document.createElement('div');
     preview.className = 'note-preview';
     preview.innerHTML = content;
-    preview.setAttribute('data-title', title);
+    function updatePreviewTitle(newTitle) {
+      const trimmed = (newTitle || '').trim();
+      if (trimmed.length) {
+        preview.setAttribute('data-title', trimmed);
+      } else {
+        preview.removeAttribute('data-title');
+      }
+    }
+    updatePreviewTitle(title);
 
     // Timestamp
     const timestampEl = document.createElement('div');
@@ -159,8 +167,16 @@ document.addEventListener('DOMContentLoaded', () => {
           note._refs.textArea.focus();
           editBtn.textContent = 'done';
         } else {
-          note._refs.preview.innerHTML = note._refs.textArea.value;
-          preview.setAttribute('data-title', titleInput.value.trim());
+          const contentTrimmed = note._refs.textArea.value.trim();
+          if (!contentTrimmed) {
+            note.remove();
+            updateEmptyState();
+            saveNotes();
+            showToast('Empty note discarded');
+            return;
+          }
+          preview.innerHTML = note._refs.textArea.value;
+          updatePreviewTitle(preview, titleInput.value);
           saveNotes();
           sortNotes();
           showToast('Note saved');
@@ -235,15 +251,21 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   notesEl.addEventListener('focusout', e => {
-    if (!e.target.classList.contains('note-editor')) return;
+    if (!e.target.classList.contains('note-editor') || !e.target.classList.contains('note-title')) return;
     const note = e.target.closest('.note');
+    if (!note) return;
     const textArea = note._refs.textArea;
+    const titleInput = note._refs.titleInput;
+    const preview = note._refs.preview;
     const text = textArea.value.trim();
 
     if (!text) {
       note.remove();
       updateEmptyState();
       saveNotes();
+      showToast('Empty note discarded');
+    } else {
+      updatePreviewTitle(preview, titleInput.value);
     }
   });
 
