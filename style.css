@@ -86,6 +86,11 @@ header h1 {
   transition: transform 0.2s, background 0.2s, color 0.2s;
 }
 
+body[data-theme="dark"] .theme-btn img,
+body[data-theme="dark"] .add-btn img {
+  filter: invert(1);
+}
+
 .add-btn:active {
   transform: rotate(90deg) scale(0.98);
 }
@@ -207,15 +212,14 @@ body[data-theme="dark"] .note {
   transition: transform 0.2s, opacity 0.2s;
 }
 
-.note-toolbar .material-symbols-outlined {
-  font-size: 1.4rem;
+.note-toolbar img {
   cursor: pointer;
-  color: var(--muted);
-  transition: color 0.2s;
+  filter: invert(0.2);
+  transition: filter 0.2s;
 }
 
-.note-toolbar .material-symbols-outlined:hover {
-  color: var(--accent);
+body[data-theme="dark"] .note-toolbar img {
+  filter: invert(1) brightness(0.7);
 }
 
 /* Editor & Preview */
