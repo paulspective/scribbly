@@ -80,13 +80,17 @@ export function createNote(content = '', isNew = true, timestampStr = null, pinn
 
   toolbar.addEventListener('click', e => {
     const editBtn = e.target.closest('.edit-btn');
+    const deleteBtn = e.target.closest('.delete-btn');
+    const pinBtn = e.target.closest('.pin-btn');
+
     if (editBtn) {
       const isEditing = note.classList.toggle('editing');
       if (isEditing) {
-        note._refs.textArea.focus();
-        editBtn.textContent = 'done';
+        textArea.focus();
+        editBtn.src = './assets/icons/check.svg';
+        editBtn.title = 'Save note';
       } else {
-        const contentTrimmed = note._refs.textArea.value.trim();
+        const contentTrimmed = textArea.value.trim();
         if (!contentTrimmed) {
           note.remove();
           updateEmptyState();
@@ -94,16 +98,16 @@ export function createNote(content = '', isNew = true, timestampStr = null, pinn
           showToast('Empty note discarded');
           return;
         }
-        preview.innerHTML = note._refs.textArea.value;
+        preview.innerHTML = textArea.value;
         updatePreviewTitle(titleInput.value);
         saveNotes();
         sortNotes();
         showToast('Note saved');
-        editBtn.innerHTML = `<img src="./assets/icons/check.svg" class="edit-btn" title="Done editing" alt="Done editing">`
+        editBtn.src = './assets/icons/edit_note.svg';
+        editBtn.title = 'Edit note';
       }
     }
 
-    const deleteBtn = e.target.closest('.delete-btn');
     if (deleteBtn) {
       note.classList.add('deleting');
       note.addEventListener('animationend', () => {
@@ -114,7 +118,6 @@ export function createNote(content = '', isNew = true, timestampStr = null, pinn
       }, { once: true });
     }
 
-    const pinBtn = e.target.closest('.pin-btn');
     if (pinBtn) {
       const isPinned = note.classList.toggle('pinned');
       e.target.src = `./assets/icons/${isPinned ? 'keep' : 'keep_off'}.svg`;
@@ -133,10 +136,11 @@ export function createNote(content = '', isNew = true, timestampStr = null, pinn
   if (isNew) {
     note.classList.add('editing');
     textArea.focus();
-    const len = textArea.value.length;
-    textArea.setSelectionRange(len, len);
     const editBtn = toolbar.querySelector('.edit-btn');
-    if (editBtn) editBtn.innerHTML = `<img src="./assets/icons/check.svg" class="edit-btn" title="Save note" alt="Save note">`;
+    if (editBtn) {
+      editBtn.src = './assets/icons/check.svg';
+      editBtn.title = 'Save note';
+    }
   }
 
   updateEmptyState();
@@ -154,7 +158,8 @@ export function createNote(content = '', isNew = true, timestampStr = null, pinn
       sortNotes();
       note.classList.remove('editing');
       const editBtn = toolbar.querySelector('.edit-btn');
-      if (editBtn) editBtn.textContent = 'edit_note';
+      if (editBtn) editBtn.src = './assets/icons/edit_note.svg';
+      showToast('Note saved');
     }
   });
 
