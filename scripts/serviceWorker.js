@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v4';
+const CACHE_VERSION = 'v5';
 const CACHE_NAME = `scribbly-cache-${CACHE_VERSION}`;
 
 const BASE_PATH = '/scribbly';
@@ -28,16 +28,17 @@ const FILES_TO_CACHE = [
 
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(FILES_TO_CACHE))
+    caches.open(CACHE_NAME)
+      .then(cache => Promise.allSettled(FILES_TO_CACHE.map(f => cache.add(f))))
       .then(() => self.skipWaiting())
   );
 });
 
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.map(key => key !== CACHE_NAME && caches.delete(key)))
-    ).then(() => self.clients.claim())
+    caches.keys()
+      .then(keys => Promise.all(keys.map(key => key !== CACHE_NAME && caches.delete(key))))
+      .then(() => self.clients.claim())
   );
 });
 
@@ -46,19 +47,18 @@ self.addEventListener('fetch', event => {
 
   if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(request)
-        .then(response => response)
-        .catch(() => caches.match(`${BASE_PATH}/index.html`))
+      caches.match(`${BASE_PATH}/index.html`)
+        .then(cached => cached || fetch(request))
     );
     return;
   }
 
   event.respondWith(
-    caches.match(request).then(cached =>
-      cached || fetch(request).then(network => {
-        caches.open(CACHE_NAME).then(cache => cache.put(request, network.clone()));
-        return network;
-      }).catch(() => new Response('Offline', { status: 503 }))
-    )
+    fetch(request)
+      .then(networkResponse => {
+        caches.open(CACHE_NAME).then(cache => cache.put(request, networkResponse.clone()));
+        return networkResponse;
+      })
+      .catch(() => caches.match(request) || new Response('Offline', { status: 503 }))
   );
 });
