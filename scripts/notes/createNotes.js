@@ -171,6 +171,14 @@ export function createNote(content = '', isNew = true, timestampStr = null, pinn
 }
 
 addBtn.addEventListener('click', () => {
+  const editingNote = notesEl.querySelector('.note.editing');
+  if (editingNote) {
+    const textArea = editingNote._refs.textArea;
+    textArea.focus();
+    showToast('Finish editing the current note first');
+    return;
+  }
+
   const note = createNote('');
   saveNotes();
 });
