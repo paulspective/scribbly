@@ -355,7 +355,7 @@ mark {
   position: fixed;
   bottom: 2rem;
   left: 50%;
-  background: var(--card);
+  background: var(--card-hover);
   color: var(--text);
   padding: 1rem 1.3rem;
   border-radius: 8px;
