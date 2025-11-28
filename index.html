@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Scribbly</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined">
   <link rel="stylesheet" href="style.css">
 </head>
 <body data-theme="dark">
@@ -14,10 +13,10 @@
       <h1>Scribbly</h1>
       <div class="header-actions">
         <div class="theme-btn" title="Toggle theme">
-          <span class="material-symbols-outlined">contrast</span>
+          <img src="./assets/icons/contrast.svg" alt="Toggle theme">
         </div>
-        <div class="add-btn">
-          <span class="material-symbols-outlined" title="Add new note">add</span>
+        <div class="add-btn" title="Add note">
+          <img src="./assets/icons/add.svg" alt="Add note">
         </div>
       </div>
     </header>
@@ -28,9 +27,8 @@
     <div class="empty">No notes yet. Start scribbling.</div>
   </div>
 
-  <div id="toast" class="toast hidden"></div>
+  <div id="toast" class="toast"></div>
 
-  <script src="app.js"></script>
+  <script type="module" src="./scripts/app.js"></script>
 </body>
-
 </html>
