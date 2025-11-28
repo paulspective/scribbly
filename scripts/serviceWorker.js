@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2';
 const CACHE_NAME = `notes-cache-${CACHE_VERSION}`;
 
 const BASE_PATH = self.location.pathname.includes('/scribbly/') ? '/scribbly' : '';
