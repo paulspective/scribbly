@@ -1,15 +1,12 @@
-const CACHE_VERSION = 'v3';
+const CACHE_VERSION = 'v4';
 const CACHE_NAME = `scribbly-cache-${CACHE_VERSION}`;
 
-const BASE_PATH = self.location.pathname.includes('/scribbly') ? '/scribbly' : '';
+const BASE_PATH = '/scribbly';
 
-const CORE_FILES = [
-  `${BASE_PATH}/`,
+const FILES_TO_CACHE = [
   `${BASE_PATH}/index.html`,
   `${BASE_PATH}/style.css`,
   `${BASE_PATH}/scripts/app.js`,
-  `${BASE_PATH}/assets/fonts/Manrope-Light.ttf`,
-  `${BASE_PATH}/assets/fonts/Manrope-Regular.ttf`,
   `${BASE_PATH}/scripts/utils/timestamp.js`,
   `${BASE_PATH}/scripts/utils/toast.js`,
   `${BASE_PATH}/scripts/utils/theme.js`,
@@ -19,9 +16,8 @@ const CORE_FILES = [
   `${BASE_PATH}/scripts/notes/saveNotes.js`,
   `${BASE_PATH}/scripts/notes/search.js`,
   `${BASE_PATH}/scripts/notes/emptyState.js`,
-];
-
-const ICONS = [
+  `${BASE_PATH}/assets/fonts/Manrope-Light.ttf`,
+  `${BASE_PATH}/assets/fonts/Manrope-Regular.ttf`,
   `${BASE_PATH}/assets/icons/contrast.svg`,
   `${BASE_PATH}/assets/icons/add.svg`,
   `${BASE_PATH}/assets/icons/keep.svg`,
@@ -30,26 +26,17 @@ const ICONS = [
   `${BASE_PATH}/assets/icons/delete.svg`
 ];
 
-const FILES_TO_CACHE = [...CORE_FILES, ...ICONS];
-
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(async cache => {
-      try {
-        await cache.addAll(FILES_TO_CACHE);
-      } catch (err) {
-        await Promise.allSettled(FILES_TO_CACHE.map(f => cache.add(f)));
-      }
-    }).then(() => self.skipWaiting())
+    caches.open(CACHE_NAME).then(cache => cache.addAll(FILES_TO_CACHE))
+      .then(() => self.skipWaiting())
   );
 });
 
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(keys.map(key => {
-        if (key !== CACHE_NAME) return caches.delete(key);
-      }))
+      Promise.all(keys.map(key => key !== CACHE_NAME && caches.delete(key)))
     ).then(() => self.clients.claim())
   );
 });
@@ -57,22 +44,21 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   const request = event.request;
 
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      fetch(request)
+        .then(response => response)
+        .catch(() => caches.match(`${BASE_PATH}/index.html`))
+    );
+    return;
+  }
+
   event.respondWith(
-    caches.match(request).then(async cached => {
-      try {
-        const network = await fetch(request);
-        const cache = await caches.open(CACHE_NAME);
-        cache.put(request, network.clone());
+    caches.match(request).then(cached =>
+      cached || fetch(request).then(network => {
+        caches.open(CACHE_NAME).then(cache => cache.put(request, network.clone()));
         return network;
-      } catch {
-        if (cached) return cached;
-
-        if (request.mode === 'navigate') {
-          return caches.match(`${BASE_PATH}/index.html`);
-        }
-
-        return new Response('Offline', { status: 503 });
-      }
-    })
+      }).catch(() => new Response('Offline', { status: 503 }))
+    )
   );
 });
