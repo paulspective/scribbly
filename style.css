@@ -269,7 +269,7 @@ body[data-theme="dark"] .note-toolbar img {
 .note-title {
   flex: 1;
   font-weight: 400;
-  font-size: 1.2rem;
+  font-size: 1.15rem;
   border: none;
   outline: none;
   white-space: nowrap;
