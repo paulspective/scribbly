@@ -10,7 +10,7 @@ export function showToast(message) {
     toastTimeout = setTimeout(() => {
       toast.classList.remove('show');
       toastActive = false;
-    }, 1500);
+    }, 2000);
     return;
   }
 
@@ -21,5 +21,5 @@ export function showToast(message) {
   toastTimeout = setTimeout(() => {
     toast.classList.remove('show');
     toastActive = false;
-  }, 1500);
+  }, 2000);
 }
