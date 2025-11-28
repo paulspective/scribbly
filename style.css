@@ -25,13 +25,13 @@ body[data-theme="dark"] {
 
 @font-face {
   font-family: 'Manrope';
-  src: url(./assets/Manrope-Light.ttf) format('truetype');
+  src: url(./assets/fonts/Manrope-Light.ttf) format('truetype');
   font-weight: 300;
 }
 
 @font-face {
   font-family: 'Manrope';
-  src: url(./assets/Manrope-Regular.ttf) format('truetype');
+  src: url(./assets/fonts/Manrope-Regular.ttf) format('truetype');
   font-weight: 400;
 }
 
@@ -265,7 +265,7 @@ body[data-theme="dark"] .note {
 .note-title {
   flex: 1;
   font-weight: 400;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   border: none;
   outline: none;
   white-space: nowrap;
@@ -349,12 +349,12 @@ mark {
   position: fixed;
   bottom: 2rem;
   left: 50%;
-  background: var(--card-hover);
+  background: var(--card);
   color: var(--text);
-  padding: 0.6rem 1rem;
-  border-radius: 6px;
+  padding: 1rem 1.3rem;
+  border-radius: 8px;
   font-size: 0.8rem;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   opacity: 0;
   transform: scale(0.85) translateX(-50%);
   transition: opacity 0.25s ease, transform 0.25s ease;
@@ -364,5 +364,4 @@ mark {
 .toast.show {
   transform: translate(-50%, -10px) scale(1);
   opacity: 1;
-
 }
