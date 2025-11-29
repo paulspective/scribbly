@@ -154,12 +154,21 @@ export function createNote(content = '', isNew = true, timestampStr = null, pinn
 
   textArea.addEventListener('keydown', e => {
     if (e.key === 'Enter' && e.ctrlKey) {
-      saveNotes();
-      sortNotes();
-      note.classList.remove('editing');
-      const editBtn = toolbar.querySelector('.edit-btn');
-      if (editBtn) editBtn.src = './assets/icons/edit_note.svg';
-      showToast('Note saved');
+      const text = textArea.value.trim();
+
+      if (!text) {
+        note.remove();
+        updateEmptyState();
+        saveNotes();
+        showToast('Empty note discarded');
+      } else {
+        saveNotes();
+        sortNotes();
+        note.classList.remove('editing');
+        const editBtn = toolbar.querySelector('.edit-btn');
+        if (editBtn) editBtn.src = './assets/icons/edit_note.svg';
+        showToast('Note saved');
+      }
     }
   });
 
