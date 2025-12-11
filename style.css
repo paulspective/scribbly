@@ -149,12 +149,7 @@ body[data-theme="dark"] .note {
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
 }
 
-.note:hover .note-toolbar {
-  transform: translateY(0);
-  pointer-events: all;
-  opacity: 1;
-}
-
+.note:hover .note-toolbar,
 .note.editing .note-toolbar {
   transform: translateY(0);
   pointer-events: all;
@@ -194,10 +189,6 @@ body[data-theme="dark"] .note {
   background: var(--accent);
   border-radius: 3px;
   opacity: 0.85;
-}
-
-.note.pinned .pin-btn {
-  color: var(--accent);
 }
 
 /* Toolbar */
