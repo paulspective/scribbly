@@ -1,7 +1,7 @@
-const CACHE_VERSION = 'v7';
+const CACHE_VERSION = 'v8';
 const CACHE_NAME = `scribbly-cache-${CACHE_VERSION}`;
 
-const BASE_PATH = 'scribbly';
+const BASE_PATH = '/scribbly';
 
 const FILES_TO_CACHE = [
   `${BASE_PATH}/`,
@@ -26,24 +26,25 @@ const FILES_TO_CACHE = [
   `${BASE_PATH}/assets/icons/delete.svg`
 ];
 
+// Install: pre-cache app shell
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => Promise.allSettled(FILES_TO_CACHE.map(f => cache.add(f))))
+      .then(cache => cache.addAll(FILES_TO_CACHE))
       .then(() => self.skipWaiting())
   );
 });
 
+// Activate: clean up old caches
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys()
-      .then(keys => Promise.all(
-        keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
-      ))
-      .then(() => self.clients.claim())
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+    ).then(() => self.clients.claim())
   );
 });
 
+// Fetch: serve cached content when offline
 self.addEventListener('fetch', event => {
   const request = event.request;
 
@@ -53,23 +54,16 @@ self.addEventListener('fetch', event => {
     );
     return;
   }
-
   event.respondWith(
-    caches.match(request)
-      .then(cachedResponse => {
-        if (cachedResponse) return cachedResponse;
+    caches.match(request).then(cached => {
+      if (cached) return cached;
 
-        return fetch(request).then(networkResponse => {
-          caches.open(CACHE_NAME).then(cache => {
-            cache.put(request, networkResponse.clone());
-          });
+      return fetch(request).then(networkResponse => {
+        return caches.open(CACHE_NAME).then(cache => {
+          cache.put(request, networkResponse.clone());
           return networkResponse;
         });
-      })
-      .catch(() => {
-        if (request.destination === 'document') {
-          return caches.match(`${BASE_PATH}/`);
-        }
-      })
+      });
+    })
   );
 });
