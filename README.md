@@ -1,21 +1,25 @@
-## 📝 Scribbly – Minimalist Browser-Based Note-Taking
+## 📝 Scribbly – Quick, clean note-taking
 
-**✨ Key Features**
-- Auto-saves notes to your browser (localStorage)
-- Pin important notes for quick access
-- Add titles to your notes
-- Smart timestamp formatting
-- Keyword search with highlighting
+**What it does**
+- Saves your notes automatically in the browser
+- Works offline – your notes go wherever you go
+- Pin the important ones
+- Add titles and timestamps
+- Search through your notes instantly
 - Light/Dark theme toggle
-- Toast notifications for actions
+- Quick action notifications
 
-**🚀 Getting Started**
+---
 
-Open **[Scribbly](https://paulspective.github.io/scribbly)** in your browser and start typing. Notes are saved automatically and stay on your device.
+**How to use**
+- Click **+** to add a note
+- Type your title and content
+- Press **Ctrl + Enter** to save a note instantly
+- Hover to see options
+- Double-click a note to expand
 
-**How to Use**
-- Click **+** to create a new note
-- Give your note a title and type your content
-- Press **Ctrl + Enter** to save
-- Hover over a note to reveal the toolbar
-- Double-click a collapsed note to expand it
+---
+
+Open [Scribbly](https://paulspective.github.io/scribbly) and start writing. Notes stay with you, even offline.  
+
+Install it on your device for a clean, app-like experience.
