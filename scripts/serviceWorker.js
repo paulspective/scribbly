@@ -1,10 +1,8 @@
 const CACHE_VERSION = 'v9';
 const CACHE_NAME = `scribbly-cache-${CACHE_VERSION}`;
-
 const BASE_PATH = '/scribbly';
 
 const FILES_TO_CACHE = [
-  `${BASE_PATH}/`,
   `${BASE_PATH}/index.html`,
   `${BASE_PATH}/style.css`,
   `${BASE_PATH}/scripts/app.js`,
@@ -27,7 +25,7 @@ const FILES_TO_CACHE = [
   `${BASE_PATH}/assets/icons/delete.svg`
 ];
 
-// Install: pre-cache app shell
+// Install: pre-cache files
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -36,28 +34,34 @@ self.addEventListener('install', event => {
   );
 });
 
-// Activate: clean up old caches
+// Activate: remove old caches
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+      Promise.all(
+        keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
+      )
     ).then(() => self.clients.claim())
   );
 });
 
-// Fetch: serve cached content when offline
+// Fetch: offline-first strategy
 self.addEventListener('fetch', event => {
   const request = event.request;
 
   if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(request).catch(() => caches.match(`${BASE_PATH}/index.html`))
+      caches.match(request).then(cachedResponse => {
+        if (cachedResponse) return cachedResponse;
+        return caches.match(`${BASE_PATH}/index.html`);
+      }).catch(() => fetch(request))
     );
     return;
   }
+
   event.respondWith(
-    caches.match(request).then(cached => {
-      if (cached) return cached;
+    caches.match(request).then(cachedResponse => {
+      if (cachedResponse) return cachedResponse;
 
       return fetch(request).then(networkResponse => {
         return caches.open(CACHE_NAME).then(cache => {
