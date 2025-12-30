@@ -1,10 +1,11 @@
-const CACHE_VERSION = 'v8';
+const CACHE_VERSION = 'v9';
 const CACHE_NAME = `scribbly-cache-${CACHE_VERSION}`;
 
 const BASE_PATH = '/scribbly';
 
 const FILES_TO_CACHE = [
   `${BASE_PATH}/`,
+  `${BASE_PATH}/index.html`,
   `${BASE_PATH}/style.css`,
   `${BASE_PATH}/scripts/app.js`,
   `${BASE_PATH}/scripts/utils/timestamp.js`,
@@ -50,7 +51,7 @@ self.addEventListener('fetch', event => {
 
   if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(request).catch(() => caches.match(`${BASE_PATH}/`))
+      fetch(request).catch(() => caches.match(`${BASE_PATH}/index.html`))
     );
     return;
   }
