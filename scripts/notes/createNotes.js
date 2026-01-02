@@ -96,34 +96,6 @@ function bindToolbarEvents(toolbar, note, textArea, titleInput, preview, timesta
   });
 }
 
-function bindKeyboardShortcuts(titleInput, textArea, note, toolbar) {
-  titleInput.addEventListener('keydown', e => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      textArea.focus();
-    }
-  });
-
-  textArea.addEventListener('keydown', e => {
-    if (e.key === 'Enter' && e.ctrlKey) {
-      const text = textArea.value.trim();
-      if (!text) {
-        note.remove();
-        updateEmptyState();
-        saveNotes();
-        showToast('Empty note discarded');
-      } else {
-        saveNotes();
-        sortNotes();
-        note.classList.remove('editing');
-        const editBtn = toolbar.querySelector('.edit-btn');
-        if (editBtn) editBtn.src = './assets/icons/edit_note.svg';
-        showToast('Note saved');
-      }
-    }
-  });
-}
-
 // Handler Functions
 function handleEdit(note, textArea, titleInput, preview, editBtn) {
   const isEditing = note.classList.toggle('editing');
@@ -184,7 +156,6 @@ export function createNote(content = '', isNew = true, timestampStr = null, pinn
   bindTitleEvents(titleInput, preview);
   bindEditorEvents(textArea, preview, timestampEl, note);
   bindToolbarEvents(toolbar, note, textArea, titleInput, preview, timestampEl);
-  bindKeyboardShortcuts(titleInput, textArea, note, toolbar);
 
   note.appendChild(headerRow);
   note.appendChild(textArea);
@@ -224,7 +195,7 @@ addBtn.addEventListener('click', () => {
   saveNotes();
 });
 
-//Focusout handler to discard empty notes
+// Focusout handler to discard empty notes
 notesEl.addEventListener('focusout', e => {
   if (!e.target.classList.contains('note-editor') && !e.target.classList.contains('note-title')) return;
   const note = e.target.closest('.note');
