@@ -42,7 +42,7 @@ function createEditor(content) {
 function createPreview(content, title) {
   const preview = document.createElement('div');
   preview.className = 'note-preview';
-  preview.innerHTML = content;
+  preview.textContent = content; // safer than innerHTML
   updatePreviewTitle(preview, title);
   return preview;
 }
@@ -75,11 +75,16 @@ function bindTitleEvents(titleInput, preview) {
 
 function bindEditorEvents(textArea, preview, timestampEl, note) {
   textArea.addEventListener('input', () => {
-    if (textArea.value.trim().length === 0) return;
-    preview.innerHTML = textArea.value;
-    const now = new Date();
-    note.dataset.timestamp = now.toISOString();
-    timestampEl.textContent = formatTimestamp(now);
+    const trimmed = textArea.value.trim();
+
+    preview.textContent = textArea.value;
+
+    if (trimmed.length > 0) {
+      const now = new Date();
+      note.dataset.timestamp = now.toISOString();
+      timestampEl.textContent = formatTimestamp(now);
+    }
+
     saveNotes();
   });
 }
@@ -112,7 +117,7 @@ function handleEdit(note, textArea, titleInput, preview, editBtn) {
       showToast('Empty note discarded');
       return;
     }
-    preview.innerHTML = textArea.value;
+    preview.textContent = textArea.value;
     updatePreviewTitle(preview, titleInput.value);
     saveNotes();
     sortNotes();
@@ -182,33 +187,56 @@ export function createNote(content = '', isNew = true, timestampStr = null, pinn
   return note;
 }
 
-// Add button handler
+// Add button handler (auto-save + discard empty notes)
 addBtn.addEventListener('click', () => {
   const editingNote = notesEl.querySelector('.note.editing');
+
   if (editingNote) {
-    const textArea = editingNote._refs.textArea;
-    textArea.focus();
-    showToast('Finish editing the current note first');
-    return;
+    const { textArea, titleInput, preview } = editingNote._refs || {};
+    if (!textArea) return;
+
+    const contentTrimmed = textArea.value.trim();
+
+    if (!contentTrimmed) {
+      editingNote.remove();
+      updateEmptyState();
+      saveNotes();
+      showToast('Empty note discarded');
+      return;
+    } else {
+      preview.textContent = textArea.value;
+      updatePreviewTitle(preview, titleInput.value);
+      editingNote.classList.remove('editing');
+
+      const editBtn = editingNote.querySelector('.edit-btn');
+      if (editBtn) {
+        editBtn.src = './assets/icons/edit_note.svg';
+        editBtn.title = 'Edit note';
+      }
+
+      saveNotes();
+      sortNotes();
+      showToast('Note saved');
+    }
   }
+
   createNote('');
-  saveNotes();
 });
 
-// Focusout handler to discard empty notes
+
+// Focusout handler
 notesEl.addEventListener('focusout', e => {
-  if (!e.target.classList.contains('note-editor') && !e.target.classList.contains('note-title')) return;
+  const isEditable = e.target.classList.contains('note-editor') || e.target.classList.contains('note-title');
+  if (!isEditable) return;
+
   const note = e.target.closest('.note');
   if (!note) return;
+
   const { textArea, titleInput, preview } = note._refs;
   const text = textArea.value.trim();
 
-  if (!text) {
-    note.remove();
-    updateEmptyState();
-    saveNotes();
-    showToast('Empty note discarded');
-  } else {
+  if (text.length > 0) {
     updatePreviewTitle(preview, titleInput.value);
+    saveNotes();
   }
 });
