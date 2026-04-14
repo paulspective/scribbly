@@ -6,7 +6,7 @@ No accounts. No clutter. Just write.
 
 ## Live
 
-(Try Scribbly)[https://paulspective.github.io/scribbly/]
+[Try Scribbly](https://paulspective.github.io/scribbly/)
 
 ## Features
 
