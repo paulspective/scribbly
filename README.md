@@ -2,8 +2,6 @@
 
 A minimal note-taking app that stays out of your way.
 
-No accounts. No clutter. Just write.
-
 ## Live
 
 [Try Scribbly](https://paulspective.github.io/scribbly/)
