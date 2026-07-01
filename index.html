@@ -1,46 +1,121 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Scribbly</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,400;1,9..144,400;1,9..144,500&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="style.css">
-  <link rel="icon" type="image/x-icon" href="assets/favicons/favicon.ico">
-  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicons/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="assets/favicons/favicon-16x16.png">
-  <link rel="icon" type="image/svg+xml" href="assets/favicons/favicon.svg">
-  <link rel="apple-touch-icon" sizes="180x180" href="assets/favicons/apple-touch-icon.png">
-  <meta name="apple-mobile-web-app-title" content="Scribbly">
-  <meta name="theme-color" content="#f5f5f5" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)">
-  <link rel="manifest" href="manifest.json">
 </head>
+<body>
 
-<body data-theme="dark">
+  <div class="app-shell" id="app-shell">
 
-  <div class="note-container">
-    <header>
-      <h1>Scribbly</h1>
-      <div class="header-actions">
-        <div class="theme-btn" title="Toggle theme">
-          <img src="./assets/icons/contrast.svg" alt="Toggle theme">
-        </div>
-        <div class="add-btn" title="Add note">
-          <img src="./assets/icons/add.svg" alt="Add note">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <h1 class="sidebar-title">Scribbly</h1>
+        <div class="search-bar">
+          <button class="search-btn" title="search">
+            <iconify-icon icon="fluent:search-24-regular"></iconify-icon>
+          </button>
+          <input type="text" id="search-input" placeholder="Search notes…" autocomplete="off">
         </div>
       </div>
-    </header>
 
-    <input type="text" class="search" placeholder="Search...">
-    <div class="notes"></div>
+      <div class="note-list" id="note-list"></div>
 
-    <div class="empty">No notes yet. Start scribbling.</div>
+      <div class="sidebar-footer">
+        <span class="note-count" id="note-count">0 notes</span>
+        <button class="new-btn-sidebar" id="new-btn-sidebar" title="New note">
+          <iconify-icon icon="fluent:add-24-filled"></iconify-icon>
+        </button>
+      </div>
+    </aside>
+
+    <main class="editor-panel" id="editor-panel">
+      <div class="editor-toolbar">
+        <span class="editor-meta" id="editor-meta">Select a note</span>
+        <div class="toolbar-actions">
+          <button class="tool-btn hidden" id="pin-btn" title="Pin note">
+            <iconify-icon icon="fluent:pin-24-regular"></iconify-icon>
+          </button>
+          <button class="tool-btn danger hidden" id="delete-btn" title="Delete note">
+            <iconify-icon icon="fluent:delete-24-regular"></iconify-icon>
+          </button>
+        </div>
+      </div>
+
+      <div class="editor-content" id="editor-content">
+        <div class="empty-state" id="empty-state">
+          <iconify-icon icon="fluent:document-edit-24-regular"></iconify-icon>
+          <p>Pick a note or create a new one</p>
+        </div>
+        <input type="text" id="note-title" class="editor-note-title hidden" placeholder="Note title…"
+          autocomplete="off">
+        <textarea id="note-body" class="editor-body hidden" placeholder="Start scribbling…"></textarea>
+      </div>
+    </main>
+
   </div>
 
-  <div id="toast" class="toast"></div>
+  <div class="mobile-shell" id="mobile-shell">
 
-  <script type="module" src="./scripts/app.js"></script>
+    <div class="mobile-list-view" id="mobile-list-view">
+      <div class="mobile-header">
+        <div class="mobile-top-row">
+          <h1 class="mobile-title">Scribbly</h1>
+        </div>
+        <div class="mobile-search">
+          <iconify-icon icon="fluent:search-24-regular"></iconify-icon>
+          <input type="text" id="mobile-search-input" placeholder="Search notes…" autocomplete="off">
+        </div>
+      </div>
+      <div class="masonry" id="masonry"></div>
+      <button class="fab" id="fab" title="New note">
+        <iconify-icon icon="fluent:add-24-filled"></iconify-icon>
+      </button>
+    </div>
+
+    <div class="mobile-editor-view is-hidden" id="mobile-editor-view">
+      <div class="mobile-editor-toolbar">
+        <button class="back-btn" id="back-btn">
+          <iconify-icon icon="fluent:chevron-left-24-regular"></iconify-icon>
+          Notes
+        </button>
+        <span class="editor-meta mobile-editor-meta" id="mobile-editor-meta">Select a note</span>
+        <div class="toolbar-actions">
+          <button class="tool-btn hidden" id="mobile-delete-btn" title="Delete note">
+            <iconify-icon icon="fluent:delete-24-regular"></iconify-icon>
+          </button>
+          <button class="tool-btn hidden" id="mobile-pin-btn" title="Pin note">
+            <iconify-icon icon="fluent:pin-24-regular"></iconify-icon>
+          </button>
+        </div>
+      </div>
+      <div class="mobile-editor-content">
+        <input type="text" id="mobile-note-title" class="editor-note-title" placeholder="Note title…"
+          autocomplete="off">
+        <textarea id="mobile-note-body" class="editor-body" placeholder="Start writing…"></textarea>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="delete-modal hidden" id="delete-modal" aria-hidden="true">
+    <div class="delete-modal-backdrop" id="delete-modal-backdrop"></div>
+    <div class="delete-modal-content" role="dialog" aria-modal="true" aria-label="Delete note">
+      <h3>Delete this note?</h3>
+      <p>This action can't be undone.</p>
+      <div class="delete-modal-actions">
+        <button class="modal-btn secondary" id="delete-cancel-btn">Cancel</button>
+        <button class="modal-btn danger" id="delete-confirm-btn">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <script type="module" src="scripts/main.js"></script>
 </body>
-
 </html>
