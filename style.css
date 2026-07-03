@@ -14,6 +14,7 @@
   --radius-md: 14px;
   --radius-sm: 9px;
   --ease: cubic-bezier(.22, 1, .36, 1);
+  --overlay: rgba(0, 0, 0, .34);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -28,6 +29,7 @@
     --accent-soft: rgba(255, 255, 255, .1);
     --danger: #ff4444;
     --line: rgba(255, 255, 255, .1);
+    --overlay: rgba(255, 255, 255, .20);
     --shadow: 0 10px 30px rgba(0, 0, 0, .7);
   }
 }
@@ -40,6 +42,7 @@
 html,
 body {
   height: 100%;
+
 }
 
 body {
@@ -92,6 +95,7 @@ iconify-icon {
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 0;
 }
 
 .sidebar-header {
@@ -142,8 +146,46 @@ iconify-icon {
   color: var(--ink-faint);
 }
 
+.note-list,
+.editor-content,
+.masonry,
+.mobile-editor-content {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+
+.note-list::-webkit-scrollbar,
+.editor-content::-webkit-scrollbar,
+.masonry::-webkit-scrollbar,
+.mobile-editor-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.note-list::-webkit-scrollbar-track,
+.editor-content::-webkit-scrollbar-track,
+.masonry::-webkit-scrollbar-track,
+.mobile-editor-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.note-list::-webkit-scrollbar-thumb,
+.editor-content::-webkit-scrollbar-thumb,
+.masonry::-webkit-scrollbar-thumb,
+.mobile-editor-content::-webkit-scrollbar-thumb {
+  background-color: var(--ink-faint);
+  border-radius: 999px;
+}
+
+.note-list::-webkit-scrollbar-button,
+.editor-content::-webkit-scrollbar-button,
+.masonry::-webkit-scrollbar-button,
+.mobile-editor-content::-webkit-scrollbar-button {
+  display: none;
+}
+
 .note-list {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   padding: 4px 14px 14px;
   display: flex;
@@ -151,17 +193,9 @@ iconify-icon {
   gap: 8px;
 }
 
-.note-list::-webkit-scrollbar {
-  width: 6px;
-}
-
-.note-list::-webkit-scrollbar-thumb {
-  background: var(--paper-3);
-  border-radius: 10px;
-}
-
 .note-item {
   position: relative;
+  flex-shrink: 0;
   padding: 13px 14px 13px 18px;
   border-radius: var(--radius-md);
   background: var(--paper);
@@ -211,13 +245,25 @@ iconify-icon {
   text-overflow: ellipsis;
 }
 
-.note-item-date {
+.note-item-meta {
   font-size: .68rem;
   color: var(--ink-faint);
   letter-spacing: .03em;
   text-transform: uppercase;
   margin-top: 4px;
   display: block;
+}
+
+.section-label {
+  display: block;
+  flex-shrink: 0;
+  margin: 4px 4px 2px;
+  padding: 0 4px;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
 }
 
 .sidebar-footer {
@@ -257,10 +303,9 @@ iconify-icon {
 
 .editor-panel {
   flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  background: var(--paper);
-  height: 100%;
 }
 
 .editor-toolbar {
@@ -279,7 +324,7 @@ iconify-icon {
 }
 
 .mobile-editor-meta {
-  font-size: .72rem;
+  font-size: .62rem;
   margin: 0 8px;
   text-align: center;
   flex: 1;
@@ -326,6 +371,7 @@ iconify-icon {
 
 .editor-content {
   flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   padding: 8px 40px 40px;
@@ -466,15 +512,20 @@ iconify-icon {
 .masonry {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 14px 14px 100px;
-  columns: 2;
-  column-gap: 12px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  align-content: start;
+  width: 100%;
+  min-height: 0;
 }
 
 .m-card,
 .masonry-card {
   break-inside: avoid;
-  margin-bottom: 12px;
+  margin-bottom: 0;
   background: var(--paper);
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
@@ -493,6 +544,12 @@ iconify-icon {
   font-weight: 700;
   font-size: .92rem;
   margin: 0 0 6px;
+  cursor: default;
+  max-height: 2.8em;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 .m-card-body,
@@ -501,6 +558,13 @@ iconify-icon {
   color: var(--ink-soft);
   margin: 0;
   line-height: 1.45;
+  max-height: 300px;
+  cursor: default;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  word-break: break-word;
 }
 
 .m-card-date,
@@ -540,17 +604,18 @@ iconify-icon {
 .mobile-section-label {
   column-span: all;
   display: block;
-  margin: 4px 0 8px;
+  margin: 5px 0 10px;
   padding: 0 4px;
   font-size: .72rem;
   font-weight: 700;
   letter-spacing: .08em;
   text-transform: uppercase;
   color: var(--ink-faint);
+  grid-column: 1 / -1;
 }
 
 .search-match {
-  background: rgba(0, 0, 0, 0.12);
+  background: var(--accent-soft);
   color: inherit;
   border-radius: 4px 4px 0 0;
 }
@@ -602,7 +667,7 @@ iconify-icon {
 .delete-modal-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, .34);
+  background: var(--overlay);
 }
 
 .delete-modal-content {
