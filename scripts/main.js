@@ -1,21 +1,34 @@
 import { updateNote, getNotes, createNote, deleteNote, togglePin, searchNotes } from './notes.js';
-import { renderNoteList, renderMasonry, formatDate, renderAll, openNote, closeEditor, openMobileEditor, closeMobileEditor, getActiveNoteId, updateEditorMeta, setPinButtonState } from './ui.js';
+import { renderNoteList, renderMasonry, formatDate, renderAll, openNote, closeEditor, openMobileEditor, closeMobileEditor, getActiveNoteId, updateEditorMeta, setPinButtonState, setBeforeSwitchHandler } from './ui.js';
+
+const MOBILE_BREAKPOINT = 860;
 
 let saveTimer = null;
+let pendingSave = null;
 
 function currentQuery() {
-  const isMobile = window.innerWidth <= 680;
+  const isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
   const input = isMobile
     ? document.getElementById('mobile-search-input')
     : document.getElementById('search-input');
   return input?.value || '';
 }
 
+function flushAutoSave() {
+  if (!pendingSave) return;
+  clearTimeout(saveTimer);
+  const { id, titleEl, bodyEl, metaEl } = pendingSave;
+  pendingSave = null;
+  const updatedNote = updateNote(id, { title: titleEl.value.trim(), body: bodyEl.value });
+  if (metaEl && updatedNote) updateEditorMeta(metaEl, updatedNote, titleEl.value, bodyEl.value);
+  return updatedNote;
+}
+
 function scheduleAutoSave(id, titleEl, bodyEl, metaEl) {
   clearTimeout(saveTimer);
+  pendingSave = { id, titleEl, bodyEl, metaEl };
   saveTimer = setTimeout(() => {
-    const updatedNote = updateNote(id, { title: titleEl.value.trim(), body: bodyEl.value });
-    if (metaEl && updatedNote) updateEditorMeta(metaEl, updatedNote, titleEl.value, bodyEl.value);
+    flushAutoSave();
     renderAll(currentQuery());
     document.querySelectorAll('.note-item').forEach(el => {
       el.classList.toggle('active', el.dataset.id === id);
@@ -43,8 +56,10 @@ function setupEditorListeners(titleEl, bodyEl, metaEl, saveCallback) {
 
 document.addEventListener('DOMContentLoaded', () => {
   renderAll();
+  setBeforeSwitchHandler(flushAutoSave);
 
   document.getElementById('new-btn-sidebar').addEventListener('click', () => {
+    flushAutoSave();
     const note = createNote();
     renderAll();
     openNote(note.id);
@@ -59,7 +74,8 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('pin-btn').addEventListener('click', () => {
     const activeId = getActiveNoteId();
     if (!activeId) return;
-    const note = togglePin(activeId);
+    flushAutoSave();
+    togglePin(activeId);
     renderAll();
     openNote(activeId);
   });
@@ -79,18 +95,14 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.getElementById('fab').addEventListener('click', () => {
+    flushAutoSave();
     const note = createNote();
     renderAll();
     openMobileEditor(note.id);
   });
 
   document.getElementById('back-btn').addEventListener('click', () => {
-    const activeId = getActiveNoteId();
-    if (activeId) {
-      const mTitleEl = document.getElementById('mobile-note-title');
-      const mBodyEl  = document.getElementById('mobile-note-body');
-      updateNote(activeId, { title: mTitleEl.value.trim(), body: mBodyEl.value });
-    }
+    flushAutoSave();
     closeMobileEditor();
   });
 
@@ -118,10 +130,12 @@ document.addEventListener('DOMContentLoaded', () => {
   function performDelete() {
     const activeId = getActiveNoteId();
     if (!activeId) return;
+    clearTimeout(saveTimer);
+    pendingSave = null;
     deleteNote(activeId);
     renderAll(currentQuery());
     closeDeleteModal();
-    const isMobile = window.innerWidth <= 860;
+    const isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
     (isMobile ? closeMobileEditor : closeEditor)();
   }
 
@@ -134,6 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('mobile-pin-btn').addEventListener('click', () => {
     const activeId = getActiveNoteId();
     if (!activeId) return;
+    flushAutoSave();
     const note = togglePin(activeId);
     setPinButtonState(document.getElementById('mobile-pin-btn'), note?.pinned);
     renderAll(currentQuery());

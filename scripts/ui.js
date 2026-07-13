@@ -1,6 +1,11 @@
 import { updateNote, getNotes, createNote, deleteNote, togglePin, searchNotes, getSortedNotes } from './notes.js';
 
 let activeNoteId = null;
+let beforeSwitchHandler = null;
+
+export function setBeforeSwitchHandler(fn) {
+  beforeSwitchHandler = fn;
+}
 
 export function getActiveNoteId() {
   return activeNoteId;
@@ -218,6 +223,7 @@ function makeMasonryCard(note, query = '') {
 }
 
 export function openNote(id) {
+  if (activeNoteId !== id && beforeSwitchHandler) beforeSwitchHandler();
   setActiveNoteId(id);
   const note   = getNotes().find(n => n.id === id);
   if (!note) return;
@@ -258,6 +264,7 @@ export function closeEditor() {
 }
 
 export function openMobileEditor(id) {
+  if (activeNoteId !== id && beforeSwitchHandler) beforeSwitchHandler();
   setActiveNoteId(id);
   const note   = getNotes().find(n => n.id === id);
   if (!note) return;
