@@ -1,5 +1,5 @@
 import { updateNote, getNotes, createNote, deleteNote, togglePin, searchNotes } from './notes.js';
-import { renderNoteList, renderMasonry, formatDate, renderAll, openNote, closeEditor, openMobileEditor, closeMobileEditor, getActiveNoteId, updateEditorMeta, setPinButtonState, setBeforeSwitchHandler } from './ui.js';
+import { renderNoteList, renderMasonry, formatDate, renderAll, openNote, closeEditor, openMobileEditor, closeMobileEditor, getActiveNoteId, updateEditorMeta, setPinButtonState, setBeforeSwitchHandler, animateItemRemoval } from './ui.js';
 
 const MOBILE_BREAKPOINT = 860;
 
@@ -127,14 +127,15 @@ document.addEventListener('DOMContentLoaded', () => {
     deleteModal.setAttribute('aria-hidden', 'true');
   }
 
-  function performDelete() {
+  async function performDelete() {
     const activeId = getActiveNoteId();
     if (!activeId) return;
     clearTimeout(saveTimer);
     pendingSave = null;
+    closeDeleteModal();
+    await animateItemRemoval(activeId);
     deleteNote(activeId);
     renderAll(currentQuery());
-    closeDeleteModal();
     const isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
     (isMobile ? closeMobileEditor : closeEditor)();
   }

@@ -178,8 +178,8 @@ export function renderMasonry(notes, query = '') {
 
   if (all.length === 0) {
     const message = hasQuery
-      ? `<div class="empty-list" style="column-span:all">No notes found for “${escHtml(query.trim())}”.</div>`
-      : '<div class="empty-list" style="column-span:all">No notes yet.<br>Tap + to create one.</div>';
+      ? `<div class="empty-list">No notes found for “${escHtml(query.trim())}”.</div>`
+      : '<div class="empty-list">No notes yet.<br>Tap + to create one.</div>';
     grid.innerHTML = message;
     return;
   }
@@ -214,9 +214,7 @@ function makeMasonryCard(note, query = '') {
   el.innerHTML = `
     <div class="m-card-title">${highlightText(title, query)}</div>
     <div class="m-card-body">${highlightText(preview, query)}</div>
-    <div class="m-card-date">
-      <span>${formatDate(note.updatedAt)}</span>
-    </div>
+    <div class="m-card-date">${formatDate(note.updatedAt)}</div>
   `;
   el.addEventListener('click', () => openMobileEditor(note.id));
   return el;
@@ -263,6 +261,23 @@ export function openNote(id) {
   } else {
     applyContent();
   }
+}
+
+export function animateItemRemoval(id) {
+  const els = [
+    document.querySelector(`.note-item[data-id="${id}"]`),
+    document.querySelector(`.m-card[data-id="${id}"]`),
+  ].filter(Boolean);
+
+  if (els.length === 0) return Promise.resolve();
+
+  els.forEach(el => {
+    el.style.maxHeight = el.scrollHeight + 'px';
+    el.getBoundingClientRect();
+    requestAnimationFrame(() => el.classList.add('is-removing'));
+  });
+
+  return new Promise(resolve => setTimeout(resolve, 220));
 }
 
 export function closeEditor() {
