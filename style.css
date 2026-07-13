@@ -644,8 +644,8 @@ iconify-icon {
   position: fixed;
   right: 22px;
   bottom: 26px;
-  width: 48px;
-  height: 48px;
+  width: 58px;
+  height: 58px;
   border-radius: 50%;
   background: var(--accent);
   color: var(--paper);
