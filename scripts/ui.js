@@ -223,7 +223,8 @@ function makeMasonryCard(note, query = '') {
 }
 
 export function openNote(id) {
-  if (activeNoteId !== id && beforeSwitchHandler) beforeSwitchHandler();
+  const wasShowingNote = activeNoteId !== null && activeNoteId !== id;
+  if (wasShowingNote && beforeSwitchHandler) beforeSwitchHandler();
   setActiveNoteId(id);
   const note   = getNotes().find(n => n.id === id);
   if (!note) return;
@@ -233,6 +234,7 @@ export function openNote(id) {
   });
 
   const emptyState = document.getElementById('empty-state');
+  const editorContent = document.getElementById('editor-content');
   const titleEl = document.getElementById('note-title');
   const bodyEl = document.getElementById('note-body');
   const metaEl = document.getElementById('editor-meta');
@@ -245,11 +247,22 @@ export function openNote(id) {
   pinBtn.classList.remove('hidden');
   deleteBtn.classList.remove('hidden');
 
-  titleEl.value = note.title;
-  bodyEl.value = note.body;
-  updateEditorMeta(metaEl, note, titleEl.value, bodyEl.value);
+  function applyContent() {
+    titleEl.value = note.title;
+    bodyEl.value = note.body;
+    updateEditorMeta(metaEl, note, titleEl.value, bodyEl.value);
+    setPinButtonState(pinBtn, note.pinned);
+  }
 
-  setPinButtonState(pinBtn, note.pinned);
+  if (wasShowingNote) {
+    editorContent.classList.add('is-switching');
+    setTimeout(() => {
+      applyContent();
+      editorContent.classList.remove('is-switching');
+    }, 140);
+  } else {
+    applyContent();
+  }
 }
 
 export function closeEditor() {

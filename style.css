@@ -408,6 +408,17 @@ iconify-icon {
   color: var(--ink);
 }
 
+.editor-note-title,
+.editor-body {
+  transition: opacity .14s var(--ease), transform .14s var(--ease);
+}
+
+.editor-content.is-switching .editor-note-title,
+.editor-content.is-switching .editor-body {
+  opacity: 0;
+  transform: translateY(4px);
+}
+
 .editor-note-title::placeholder {
   color: var(--ink-faint);
   opacity: .6;
