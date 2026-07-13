@@ -56,7 +56,7 @@ function highlightText(text, query = '') {
 
 export function updateEditorMeta(metaEl, note, titleText = '', bodyText = '') {
   if (!metaEl || !note) return;
-  const charCount = (titleText || '').length + (bodyText || '').length;
+  const charCount = (bodyText || '').length;
   metaEl.textContent = `Updated ${formatDate(note.updatedAt)} • ${charCount} ${charCount === 1 ? 'character' : 'characters'}`;
 }
 
