@@ -652,7 +652,6 @@ iconify-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 10px 26px var(--accent-soft);
   transition: transform .2s var(--ease);
   z-index: 10;
 }
