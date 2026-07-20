@@ -22,7 +22,7 @@
           <button class="search-btn" title="search">
             <iconify-icon icon="fluent:search-24-regular"></iconify-icon>
           </button>
-          <input type="text" id="search-input" placeholder="Search…" autocomplete="off">
+          <input type="text" id="search-input" placeholder="Search notes…" autocomplete="off">
         </div>
       </div>
 
@@ -71,13 +71,10 @@
         </div>
         <div class="mobile-search">
           <iconify-icon icon="fluent:search-24-regular"></iconify-icon>
-          <input type="text" id="mobile-search-input" placeholder="Search…" autocomplete="off">
+          <input type="text" id="mobile-search-input" placeholder="Search notes…" autocomplete="off">
         </div>
       </div>
       <div class="masonry" id="masonry"></div>
-      <button class="fab" id="fab" title="New note">
-        <iconify-icon icon="fluent:add-24-filled"></iconify-icon>
-      </button>
     </div>
 
     <div class="mobile-editor-view is-hidden" id="mobile-editor-view">
@@ -88,11 +85,11 @@
         </button>
         <span class="editor-meta mobile-editor-meta" id="mobile-editor-meta">Select a note</span>
         <div class="toolbar-actions">
-          <button class="tool-btn hidden" id="mobile-pin-btn" title="Pin note">
-            <iconify-icon icon="fluent:pin-24-regular"></iconify-icon>
-          </button>
           <button class="tool-btn hidden" id="mobile-delete-btn" title="Delete note">
             <iconify-icon icon="fluent:delete-24-regular"></iconify-icon>
+          </button>
+          <button class="tool-btn hidden" id="mobile-pin-btn" title="Pin note">
+            <iconify-icon icon="fluent:pin-24-regular"></iconify-icon>
           </button>
         </div>
       </div>
@@ -102,6 +99,10 @@
         <textarea id="mobile-note-body" class="editor-body" placeholder="Start writing…"></textarea>
       </div>
     </div>
+
+    <button class="fab" id="fab" title="New note">
+      <iconify-icon icon="fluent:add-24-filled"></iconify-icon>
+    </button>
 
   </div>
 
