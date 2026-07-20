@@ -24,6 +24,48 @@ function flushAutoSave() {
   return updatedNote;
 }
 
+function getActiveEditorEls() {
+  const isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
+  return isMobile
+    ? {
+        titleEl: document.getElementById('mobile-note-title'),
+        bodyEl: document.getElementById('mobile-note-body'),
+        metaEl: document.getElementById('mobile-editor-meta'),
+      }
+    : {
+        titleEl: document.getElementById('note-title'),
+        bodyEl: document.getElementById('note-body'),
+        metaEl: document.getElementById('editor-meta'),
+      };
+}
+
+function flushAndDiscardIfEmpty() {
+  clearTimeout(saveTimer);
+  const activeId = getActiveNoteId();
+  if (!activeId) {
+    pendingSave = null;
+    return null;
+  }
+
+  const { titleEl, bodyEl, metaEl } = (pendingSave && pendingSave.id === activeId)
+    ? pendingSave
+    : getActiveEditorEls();
+  pendingSave = null;
+
+  const title = titleEl.value.trim();
+  const body = bodyEl.value.trim();
+
+  if (!title && !body) {
+    deleteNote(activeId);
+    renderAll(currentQuery());
+    return null;
+  }
+
+  const updatedNote = updateNote(activeId, { title, body: bodyEl.value });
+  if (metaEl && updatedNote) updateEditorMeta(metaEl, updatedNote, titleEl.value, bodyEl.value);
+  return updatedNote;
+}
+
 function scheduleAutoSave(id, titleEl, bodyEl, metaEl) {
   clearTimeout(saveTimer);
   pendingSave = { id, titleEl, bodyEl, metaEl };
@@ -56,10 +98,10 @@ function setupEditorListeners(titleEl, bodyEl, metaEl, saveCallback) {
 
 document.addEventListener('DOMContentLoaded', () => {
   renderAll();
-  setBeforeSwitchHandler(flushAutoSave);
+  setBeforeSwitchHandler(flushAndDiscardIfEmpty);
 
   document.getElementById('new-btn-sidebar').addEventListener('click', () => {
-    flushAutoSave();
+    flushAndDiscardIfEmpty();
     const note = createNote();
     renderAll();
     openNote(note.id);
@@ -95,14 +137,14 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.getElementById('fab').addEventListener('click', () => {
-    flushAutoSave();
+    flushAndDiscardIfEmpty();
     const note = createNote();
     renderAll();
     openMobileEditor(note.id);
   });
 
   document.getElementById('back-btn').addEventListener('click', () => {
-    flushAutoSave();
+    flushAndDiscardIfEmpty();
     closeMobileEditor();
   });
 

@@ -56,7 +56,7 @@ function highlightText(text, query = '') {
 
 export function updateEditorMeta(metaEl, note, titleText = '', bodyText = '') {
   if (!metaEl || !note) return;
-  const charCount = (bodyText || '').length;
+  const charCount = (titleText || '').length + (bodyText || '').length;
   metaEl.textContent = `Updated ${formatDate(note.updatedAt)} • ${charCount} ${charCount === 1 ? 'character' : 'characters'}`;
 }
 
@@ -150,13 +150,29 @@ function makeSectionLabel(text) {
   return el;
 }
 
+function deriveDisplay(note) {
+  const explicitTitle = (note.title || '').trim();
+  const lines = (note.body || '').split('\n');
+
+  if (explicitTitle) {
+    const preview = lines.find(l => l.trim()) || '';
+    return { title: explicitTitle, preview };
+  }
+
+  const titleLineIdx = lines.findIndex(l => l.trim());
+  if (titleLineIdx === -1) return { title: '', preview: '' };
+
+  const title = lines[titleLineIdx].trim();
+  const preview = lines.slice(titleLineIdx + 1).find(l => l.trim()) || '';
+  return { title, preview };
+}
+
 function makeNoteItem(note, query = '') {
   const el = document.createElement('div');
   el.className = 'note-item' + (note.id === activeNoteId ? ' active' : '');
   el.dataset.id = note.id;
 
-  const title   = note.title || 'Untitled';
-  const preview = (note.body || '').split('\n').find(l => l.trim()) || 'No text';
+  const { title, preview } = deriveDisplay(note);
 
   el.innerHTML = `
     <div class="note-item-title">${highlightText(title, query)}</div>
@@ -208,8 +224,7 @@ function makeMasonryCard(note, query = '') {
   el.className = 'm-card';
   el.dataset.id = note.id;
 
-  const title   = note.title || 'Untitled';
-  const preview = note.body || 'No text';
+  const { title, preview } = deriveDisplay(note);
 
   el.innerHTML = `
     <div class="m-card-title">${highlightText(title, query)}</div>
