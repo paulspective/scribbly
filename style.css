@@ -14,7 +14,7 @@
   --radius-md: 18px;
   --radius-sm: 9px;
   --ease: cubic-bezier(.22, 1, .36, 1);
-  --overlay: rgba(0, 0, 0, 0.3);
+  --overlay: rgba(0, 0, 0, .34);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -29,7 +29,7 @@
     --accent-soft: rgba(255, 255, 255, .1);
     --danger: #ff4444;
     --line: rgba(255, 255, 255, .1);
-    --overlay: rgba(255, 255, 255, 0.05);
+    --overlay: rgba(255, 255, 255, .20);
     --shadow: 0 10px 30px rgba(0, 0, 0, .7);
   }
 }
@@ -445,6 +445,7 @@ iconify-icon {
   display: none;
   position: relative;
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
 }
 
@@ -659,8 +660,13 @@ iconify-icon {
   align-items: center;
   justify-content: center;
   box-shadow: 0 10px 26px var(--accent-soft);
-  transition: transform .2s var(--ease);
+  transition: transform .2s var(--ease), opacity .2s var(--ease);
   z-index: 10;
+}
+
+#mobile-editor-view.is-visible~.fab {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .fab iconify-icon {
@@ -694,8 +700,6 @@ iconify-icon {
   position: absolute;
   inset: 0;
   background: var(--overlay);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
 }
 
 .delete-modal-content {
