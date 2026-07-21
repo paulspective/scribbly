@@ -85,7 +85,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    document.getElementById('notes-grid').addEventListener('click', (e) => {
+    document.getElementById('month-prev').addEventListener('click', (e) => {
+        if (e.target.classList.contains('hidden')) return;
+        ui.shiftMonth(-1);
+        ui.render(searchInput.value);
+    });
+
+    document.getElementById('month-next').addEventListener('click', (e) => {
+        if (e.target.classList.contains('hidden')) return;
+        ui.shiftMonth(1);
+        ui.render(searchInput.value);
+    });
+
+    document.getElementById('notes-grid').addEventListener('click', async (e) => {
         if (e.target.closest('#trigger-new-note')) {
             openModal();
             return;
@@ -94,7 +106,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const btn = e.target.closest('.action-btn');
         if (btn) {
             e.stopPropagation();
-            manager.deleteNote(btn.dataset.id);
+            const id = btn.dataset.id;
+            await ui.animateRemoval(id);
+            manager.deleteNote(id);
             ui.render(searchInput.value);
             return;
         }
