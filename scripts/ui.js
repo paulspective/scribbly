@@ -57,7 +57,7 @@ export class UI {
         if (!card) return Promise.resolve();
         return new Promise(resolve => {
             card.classList.add('is-removing');
-            setTimeout(resolve, 320);
+            setTimeout(resolve, 400);
         });
     }
     render(search = '') {
