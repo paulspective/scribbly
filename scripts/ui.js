@@ -21,7 +21,7 @@ class UI {
         if (notes.length === 0 && this.view === 'trash') {
             const emptyMsg = document.createElement('div');
             emptyMsg.className = 'empty-state';
-            emptyMsg.textContent = 'Recently deleted is empty';
+            emptyMsg.textContent = 'No stray scribbles here. Scribbles vanish after 30 days in the trash.';
             this.grid.appendChild(emptyMsg);
             return;
         }
@@ -29,7 +29,7 @@ class UI {
         if (notes.length === 0 && this.view === 'active') {
             const emptyMsg = document.createElement('div');
             emptyMsg.className = 'empty-state';
-            emptyMsg.textContent = 'No notes found for this time period.';
+            emptyMsg.textContent = 'No scribbles found for this time period.';
             this.grid.appendChild(emptyMsg);
         }
         
