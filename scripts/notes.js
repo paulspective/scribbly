@@ -7,14 +7,14 @@ export class NotesManager {
         localStorage.setItem('scribbly_data', JSON.stringify(this.notes));
     }
     cleanupTrash() {
-        const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000;
+        const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000;
         const now = Date.now();
         const initialLength = this.notes.length;
         
         this.notes = this.notes.filter(n => {
             if (!n.deleted) return true;
             if (!n.deletedAt) return true;
-            return (now - n.deletedAt) < thirtyDaysInMs;
+            return (now - n.deletedAt) < sevenDaysInMs;
         });
 
         if (this.notes.length !== initialLength) {
@@ -61,8 +61,9 @@ export class NotesManager {
     getNote(id) {
         return this.notes.find(n => n.id === id);
     }
-    getNotes(isDeleted, search = '', tab = 'today') {
+    getNotes(isDeleted, search = '', tab = 'today', viewedMonth = null) {
         const now = new Date();
+        const hasSearch = search.trim().length > 0;
         return this.notes
             .filter(n => {
                 if (n.deleted !== isDeleted) return false;
@@ -70,6 +71,7 @@ export class NotesManager {
                 if (!matchesSearch) return false;
 
                 if (isDeleted) return true;
+                if (hasSearch) return true;
 
                 const noteDate = new Date(n.timestamp);
                 const isToday = noteDate.toDateString() === now.toDateString();
@@ -81,10 +83,24 @@ export class NotesManager {
                 } else if (tab === 'week') {
                     return !isToday && diffDays <= 7;
                 } else if (tab === 'month') {
-                    return noteDate.getMonth() === now.getMonth() && noteDate.getFullYear() === now.getFullYear();
+                    const target = viewedMonth || { month: now.getMonth(), year: now.getFullYear() };
+                    return noteDate.getMonth() === target.month && noteDate.getFullYear() === target.year;
                 }
                 return true;
             })
             .sort((a, b) => b.timestamp - a.timestamp);
+    }
+    getMonthBounds() {
+        const active = this.notes.filter(n => !n.deleted);
+        if (active.length === 0) return null;
+        let earliest = null;
+        let latest = null;
+        active.forEach(n => {
+            const d = new Date(n.timestamp);
+            const key = d.getFullYear() * 12 + d.getMonth();
+            if (earliest === null || key < earliest.key) earliest = { key, month: d.getMonth(), year: d.getFullYear() };
+            if (latest === null || key > latest.key) latest = { key, month: d.getMonth(), year: d.getFullYear() };
+        });
+        return { earliest, latest };
     }
 }
