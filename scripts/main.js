@@ -1,3 +1,6 @@
+import { NotesManager } from './notes.js';
+import { UI } from './ui.js';
+
 document.addEventListener('DOMContentLoaded', () => {
     const manager = new NotesManager();
     const ui = new UI(manager);
