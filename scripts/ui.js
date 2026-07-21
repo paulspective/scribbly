@@ -91,7 +91,7 @@ export class UI {
             
             card.innerHTML = `
                 <div class="note-date">${note.date}</div>
-                <div class="note-title">${escHtml(note.title)}</div>
+                <div class="note-title" title="${escHtml(note.title)}">${escHtml(note.title)}</div>
                 <div class="note-body">${escHtml(note.body)}</div>
                 <div class="note-footer">
                     <iconify-icon icon="fluent:clock-24-regular"></iconify-icon> ${note.time}
