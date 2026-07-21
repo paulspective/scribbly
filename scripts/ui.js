@@ -1,4 +1,4 @@
-class UI {
+export class UI {
     constructor(manager) {
         this.manager = manager;
         this.grid = document.getElementById('notes-grid');
