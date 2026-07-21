@@ -1,7 +1,20 @@
 export class NotesManager {
     constructor() {
-        this.notes = JSON.parse(localStorage.getItem('scribbly_data')) || [];
+        const stored = localStorage.getItem('scribbly_data');
+        if (stored === null) {
+            this.notes = [];
+            this.seedWelcomeNote();
+        } else {
+            this.notes = JSON.parse(stored) || [];
+        }
         this.cleanupTrash();
+    }
+    seedWelcomeNote() {
+        this.addNote(
+            'This note self-destructs...',
+            "...it doesn't.\nbut it'd be really cool if it did.\nwelcome to Scribbly!",
+            '#eada76'
+        );
     }
     save() {
         localStorage.setItem('scribbly_data', JSON.stringify(this.notes));
