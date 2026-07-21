@@ -1,4 +1,4 @@
-class NotesManager {
+export class NotesManager {
     constructor() {
         this.notes = JSON.parse(localStorage.getItem('scribbly_data')) || [];
         this.cleanupTrash();
