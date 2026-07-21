@@ -10,6 +10,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     ui.render();
 
+    const themeColorMeta = document.getElementById('theme-color-meta');
+    const syncThemeColor = () => {
+        themeColorMeta.setAttribute('content', getComputedStyle(document.body).backgroundColor);
+    };
+    syncThemeColor();
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', syncThemeColor);
+
     const toggleSidebar = (show) => {
         if (show) {
             sidebar.classList.add('open');
@@ -38,15 +45,20 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.dot').forEach(d => {
             d.classList.toggle('selected', d.dataset.color === ui.color);
         });
-        modal.style.display = 'flex';
+        modal.classList.add('active');
     };
 
     document.getElementById('btn-add-note').addEventListener('click', () => {
         openModal();
         toggleSidebar(false);
     });
-    
-    document.getElementById('close-modal').addEventListener('click', () => modal.style.display = 'none');
+
+    document.getElementById('fab-add-note').addEventListener('click', () => {
+        openModal();
+        toggleSidebar(false);
+    });
+
+    document.getElementById('close-modal').addEventListener('click', () => modal.classList.remove('active'));
     
     document.querySelectorAll('.dot').forEach(dot => {
         dot.addEventListener('click', (e) => {
@@ -65,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 manager.addNote(title, body, ui.color);
             }
-            modal.style.display = 'none';
+            modal.classList.remove('active');
             ui.render(searchInput.value);
         }
     });
