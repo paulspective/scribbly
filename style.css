@@ -607,11 +607,6 @@ html {
     display: none;
   }
 
-  .fab {
-    display: flex;
-    ckdrop-filter: blur(4px);
-  }
-
   .sidebar-overlay.active {
     display: block;
   }
