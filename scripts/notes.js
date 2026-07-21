@@ -81,7 +81,7 @@ export class NotesManager {
                 if (tab === 'today') {
                     return isToday;
                 } else if (tab === 'week') {
-                    return !isToday && diffDays <= 7;
+                    return diffDays <= 7;
                 } else if (tab === 'month') {
                     const target = viewedMonth || { month: now.getMonth(), year: now.getFullYear() };
                     return noteDate.getMonth() === target.month && noteDate.getFullYear() === target.year;
