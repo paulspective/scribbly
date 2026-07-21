@@ -46,6 +46,10 @@ body {
   color: var(--text-primary);
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 .app-title,
 .text {
   font-family: 'Mulish', sans-serif;
@@ -298,8 +302,21 @@ body {
   z-index: 2;
 }
 
+@keyframes pulse {
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.02);
+  }
+}
+
 .new-note-card {
   border: 2px dashed var(--text-secondary);
+  animation: pulse 3s infinite;
   border-radius: 16px;
   height: 280px;
   display: flex;
@@ -339,6 +356,7 @@ body {
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
   justify-content: center;
   align-items: center;
   z-index: 100;
@@ -446,6 +464,7 @@ body {
     z-index: 200;
     transform: translateX(-100%);
     box-shadow: 5px 0 15px var(--shadow);
+    transition: transform 0.3s ease
   }
 
   .sidebar.open {
@@ -461,6 +480,7 @@ body {
     bottom: 0;
     background: rgba(0, 0, 0, 0.5);
     z-index: 150;
+    backdrop-filter: blur(4px);
   }
 
   .sidebar-overlay.active {
