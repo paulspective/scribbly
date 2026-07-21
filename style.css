@@ -280,7 +280,7 @@ html {
 .note-card.is-removing,
 .note-card.is-removing:hover {
   pointer-events: none;
-  transform: translateY(70px) scale(0.9);
+  transform: translateY(70px);
   opacity: 0;
   box-shadow: none;
   transition: transform 0.36s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease 0.1s;
@@ -298,6 +298,11 @@ html {
   font-weight: 800;
   margin-bottom: 15px;
   line-height: 1.2;
+  white-space: nowrap;
+  width: 100%;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .note-body {
