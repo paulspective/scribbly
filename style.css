@@ -2,7 +2,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Manrope', sans-serif;
+  font-family: 'Mulish', sans-serif;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -50,9 +50,9 @@ html {
   scroll-behavior: smooth;
 }
 
-.app-title,
-.text {
-  font-family: 'Mulish', sans-serif;
+.app-title {
+  font-family: 'Caveat', cursive;
+  font-size: 2.5rem !important;
 }
 
 .app-container {
