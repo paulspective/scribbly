@@ -4,121 +4,86 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Scribbly</title>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,400;1,9..144,400;1,9..144,500&display=swap"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
-  <meta name="theme-color" content="#f9f9f9" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)">
+  <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
 </head>
 <body>
-
-  <div class="app-shell" id="app-shell">
-
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <div class="app-container">
     <aside class="sidebar" id="sidebar">
-      <div class="sidebar-header">
-        <h1 class="sidebar-title">Scribbly</h1>
-        <div class="search-bar">
-          <button class="search-btn" title="search">
-            <iconify-icon icon="fluent:search-24-regular"></iconify-icon>
-          </button>
-          <input type="text" id="search-input" placeholder="Search notes…" autocomplete="off">
-        </div>
+      <div class="brand">
+        <iconify-icon icon="fluent:apps-add-in-24-filled" width="24"></iconify-icon>
+        <span>Dashboard</span>
       </div>
 
-      <div class="note-list" id="note-list"></div>
-
-      <div class="sidebar-footer">
-        <span class="note-count" id="note-count">0 notes</span>
-        <button class="new-btn-sidebar" id="new-btn-sidebar" title="New note">
-          <iconify-icon icon="fluent:add-24-filled"></iconify-icon>
+      <div class="add-section">
+        <button id="btn-add-note" class="add-btn">
+          <iconify-icon icon="fluent:note-add-24-filled" width="20"></iconify-icon> Add new
         </button>
       </div>
+
+      <nav class="nav-menu">
+        <a href="#" id="nav-all" class="active">
+          <iconify-icon icon="fluent:archive-24-regular" width="20"></iconify-icon> All Notes
+        </a>
+        <a href="#" id="nav-trash">
+          <iconify-icon icon="fluent:delete-24-regular" width="20"></iconify-icon> Recently Deleted
+        </a>
+      </nav>
     </aside>
 
-    <main class="editor-panel" id="editor-panel">
-      <div class="editor-toolbar">
-        <span class="editor-meta" id="editor-meta">Select a note</span>
-        <div class="toolbar-actions">
-          <button class="tool-btn hidden" id="pin-btn" title="Pin note">
-            <iconify-icon icon="fluent:pin-24-regular"></iconify-icon>
+    <main class="main-content">
+      <header class="top-header">
+        <div class="top-header-row">
+          <button class="hamburger-btn" id="hamburger-btn">
+            <iconify-icon icon="fluent:navigation-24-regular" width="24"></iconify-icon>
           </button>
-          <button class="tool-btn danger hidden" id="delete-btn" title="Delete note">
-            <iconify-icon icon="fluent:delete-24-regular"></iconify-icon>
-          </button>
+          <h1>Scribbly</h1>
         </div>
-      </div>
+        <div class="search-box">
+          <iconify-icon icon="fluent:search-24-regular" width="20"></iconify-icon>
+          <input type="text" id="search-input" placeholder="Search">
+        </div>
+      </header>
 
-      <div class="editor-content" id="editor-content">
-        <div class="empty-state" id="empty-state">
-          <iconify-icon icon="fluent:document-edit-24-regular"></iconify-icon>
-          <p>Pick a note or create a new one</p>
+      <section class="notes-section">
+        <h2>My Notes</h2>
+        <div class="notes-header-bar">
+          <div class="tabs">
+            <span class="tab active" data-tab="today">Todays</span>
+            <span class="tab" data-tab="week">This Week</span>
+            <span class="tab" data-tab="month">This Month</span>
+          </div>
+          <div class="date-nav">
+            <iconify-icon icon="fluent:caret-left-24-filled"></iconify-icon>
+            <span id="current-month-display"></span>
+            <iconify-icon icon="fluent:caret-right-24-filled"></iconify-icon>
+          </div>
         </div>
-        <input type="text" id="note-title" class="editor-note-title hidden" placeholder="Note title…"
-          autocomplete="off">
-        <textarea id="note-body" class="editor-body hidden" placeholder="Start scribbling…"></textarea>
-      </div>
+
+        <div class="notes-grid" id="notes-grid">
+        </div>
+      </section>
     </main>
-
   </div>
 
-  <div class="mobile-shell" id="mobile-shell">
-
-    <div class="mobile-list-view" id="mobile-list-view">
-      <div class="mobile-header">
-        <div class="mobile-top-row">
-          <h1 class="mobile-title">Scribbly</h1>
-        </div>
-        <div class="mobile-search">
-          <iconify-icon icon="fluent:search-24-regular"></iconify-icon>
-          <input type="text" id="mobile-search-input" placeholder="Search notes…" autocomplete="off">
-        </div>
+  <div class="modal" id="note-modal">
+    <div class="modal-content">
+      <span class="close-btn" id="close-modal"><iconify-icon icon="fluent:dismiss-24-regular"></iconify-icon></span>
+      <input type="text" id="note-title" placeholder="Title">
+      <textarea id="note-body" placeholder="Start typing..."></textarea>
+      <div class="color-palette">
+        <span class="dot" data-color="#eada76" style="background-color: #eada76;"></span>
+        <span class="dot" data-color="#7bb2db" style="background-color: #7bb2db;"></span>
+        <span class="dot" data-color="#f0a8a6" style="background-color: #f0a8a6;"></span>
       </div>
-      <div class="masonry" id="masonry"></div>
-    </div>
-
-    <div class="mobile-editor-view is-hidden" id="mobile-editor-view">
-      <div class="mobile-editor-toolbar">
-        <button class="back-btn" id="back-btn">
-          <iconify-icon icon="fluent:chevron-left-24-regular"></iconify-icon>
-          Notes
-        </button>
-        <span class="editor-meta mobile-editor-meta" id="mobile-editor-meta">Select a note</span>
-        <div class="toolbar-actions">
-          <button class="tool-btn hidden" id="mobile-pin-btn" title="Pin note">
-            <iconify-icon icon="fluent:pin-24-regular"></iconify-icon>
-          </button>
-          <button class="tool-btn hidden" id="mobile-delete-btn" title="Delete note">
-            <iconify-icon icon="fluent:delete-24-regular"></iconify-icon>
-          </button>
-        </div>
-      </div>
-      <div class="mobile-editor-content">
-        <input type="text" id="mobile-note-title" class="editor-note-title" placeholder="Note title…"
-          autocomplete="off">
-        <textarea id="mobile-note-body" class="editor-body" placeholder="Start writing…"></textarea>
-      </div>
-    </div>
-
-    <button class="fab" id="fab" title="New note">
-      <iconify-icon icon="fluent:add-24-filled"></iconify-icon>
-    </button>
-
-  </div>
-
-  <div class="delete-modal hidden" id="delete-modal" aria-hidden="true">
-    <div class="delete-modal-backdrop" id="delete-modal-backdrop"></div>
-    <div class="delete-modal-content" role="dialog" aria-modal="true" aria-label="Delete note">
-      <h3>Delete this note?</h3>
-      <p>This action can't be undone.</p>
-      <div class="delete-modal-actions">
-        <button class="modal-btn secondary" id="delete-cancel-btn">Cancel</button>
-        <button class="modal-btn danger" id="delete-confirm-btn">Delete</button>
-      </div>
+      <button id="save-note-btn">Save Note</button>
     </div>
   </div>
 
-  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
-  <script type="module" src="scripts/main.js"></script>
+  <script src="scripts/notes.js"></script>
+  <script src="scripts/ui.js"></script>
+  <script src="scripts/main.js"></script>
 </body>
 </html>

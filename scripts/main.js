@@ -1,204 +1,120 @@
-import { updateNote, getNotes, createNote, deleteNote, togglePin, searchNotes } from './notes.js';
-import { renderNoteList, renderMasonry, formatDate, renderAll, openNote, closeEditor, openMobileEditor, closeMobileEditor, getActiveNoteId, updateEditorMeta, setPinButtonState, setBeforeSwitchHandler, animateItemRemoval } from './ui.js';
-
-const MOBILE_BREAKPOINT = 860;
-
-let saveTimer = null;
-let pendingSave = null;
-
-function currentQuery() {
-  const isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
-  const input = isMobile
-    ? document.getElementById('mobile-search-input')
-    : document.getElementById('search-input');
-  return input?.value || '';
-}
-
-function flushAutoSave() {
-  if (!pendingSave) return;
-  clearTimeout(saveTimer);
-  const { id, titleEl, bodyEl, metaEl } = pendingSave;
-  pendingSave = null;
-  const updatedNote = updateNote(id, { title: titleEl.value.trim(), body: bodyEl.value });
-  if (metaEl && updatedNote) updateEditorMeta(metaEl, updatedNote, titleEl.value, bodyEl.value);
-  return updatedNote;
-}
-
-function getActiveEditorEls() {
-  const isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
-  return isMobile
-    ? {
-        titleEl: document.getElementById('mobile-note-title'),
-        bodyEl: document.getElementById('mobile-note-body'),
-        metaEl: document.getElementById('mobile-editor-meta'),
-      }
-    : {
-        titleEl: document.getElementById('note-title'),
-        bodyEl: document.getElementById('note-body'),
-        metaEl: document.getElementById('editor-meta'),
-      };
-}
-
-function flushAndDiscardIfEmpty() {
-  clearTimeout(saveTimer);
-  const activeId = getActiveNoteId();
-  if (!activeId) {
-    pendingSave = null;
-    return null;
-  }
-
-  const { titleEl, bodyEl, metaEl } = (pendingSave && pendingSave.id === activeId)
-    ? pendingSave
-    : getActiveEditorEls();
-  pendingSave = null;
-
-  const title = titleEl.value.trim();
-  const body = bodyEl.value.trim();
-
-  if (!title && !body) {
-    deleteNote(activeId);
-    renderAll(currentQuery());
-    return null;
-  }
-
-  const updatedNote = updateNote(activeId, { title, body: bodyEl.value });
-  if (metaEl && updatedNote) updateEditorMeta(metaEl, updatedNote, titleEl.value, bodyEl.value);
-  return updatedNote;
-}
-
-function scheduleAutoSave(id, titleEl, bodyEl, metaEl) {
-  clearTimeout(saveTimer);
-  pendingSave = { id, titleEl, bodyEl, metaEl };
-  saveTimer = setTimeout(() => {
-    flushAutoSave();
-    renderAll(currentQuery());
-    document.querySelectorAll('.note-item').forEach(el => {
-      el.classList.toggle('active', el.dataset.id === id);
-    });
-  }, 400);
-}
-
-function setupEditorListeners(titleEl, bodyEl, metaEl, saveCallback) {
-  titleEl.addEventListener('input', () => {
-    const activeId = getActiveNoteId();
-    if (!activeId) return;
-    const note = getNotes().find(n => n.id === activeId);
-    if (note) updateEditorMeta(metaEl, note, titleEl.value, bodyEl.value);
-    scheduleAutoSave(activeId, titleEl, bodyEl, metaEl);
-  });
-  bodyEl.addEventListener('input', () => {
-    const activeId = getActiveNoteId();
-    if (!activeId) return;
-    const note = getNotes().find(n => n.id === activeId);
-    if (note) updateEditorMeta(metaEl, note, titleEl.value, bodyEl.value);
-    scheduleAutoSave(activeId, titleEl, bodyEl, metaEl);
-  });
-}
-
-
 document.addEventListener('DOMContentLoaded', () => {
-  renderAll();
-  setBeforeSwitchHandler(flushAndDiscardIfEmpty);
+    const manager = new NotesManager();
+    const ui = new UI(manager);
+    
+    const modal = document.getElementById('note-modal');
+    const searchInput = document.getElementById('search-input');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    const hamburgerBtn = document.getElementById('hamburger-btn');
 
-  document.getElementById('new-btn-sidebar').addEventListener('click', () => {
-    flushAndDiscardIfEmpty();
-    const note = createNote();
-    renderAll();
-    openNote(note.id);
-    setTimeout(() => document.getElementById('note-title').focus(), 50);
-  });
+    ui.render();
 
-  const titleEl = document.getElementById('note-title');
-  const bodyEl = document.getElementById('note-body');
-  const metaEl = document.getElementById('editor-meta');
-  setupEditorListeners(titleEl, bodyEl, metaEl);
+    const toggleSidebar = (show) => {
+        if (show) {
+            sidebar.classList.add('open');
+            overlay.classList.add('active');
+        } else {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+        }
+    };
 
-  document.getElementById('pin-btn').addEventListener('click', () => {
-    const activeId = getActiveNoteId();
-    if (!activeId) return;
-    flushAutoSave();
-    togglePin(activeId);
-    renderAll();
-    openNote(activeId);
-  });
+    hamburgerBtn.addEventListener('click', () => toggleSidebar(true));
+    overlay.addEventListener('click', () => toggleSidebar(false));
 
-  document.getElementById('search-input').addEventListener('input', e => {
-    renderAll(e.target.value);
-    const activeId = getActiveNoteId();
-    if (activeId) {
-      const stillExists = getNotes().find(n => n.id === activeId);
-      if (!stillExists) closeEditor();
-      else {
-        document.querySelectorAll('.note-item').forEach(el => {
-          el.classList.toggle('active', el.dataset.id === activeId);
+    const openModal = (note = null) => {
+        if (note) {
+            ui.editingId = note.id;
+            document.getElementById('note-title').value = note.title;
+            document.getElementById('note-body').value = note.body;
+            ui.color = note.color;
+        } else {
+            ui.editingId = null;
+            document.getElementById('note-title').value = '';
+            document.getElementById('note-body').value = '';
+            ui.color = '#eada76';
+        }
+        document.querySelectorAll('.dot').forEach(d => {
+            d.classList.toggle('selected', d.dataset.color === ui.color);
         });
-      }
-    }
-  });
+        modal.style.display = 'flex';
+    };
 
-  document.getElementById('fab').addEventListener('click', () => {
-    flushAndDiscardIfEmpty();
-    const note = createNote();
-    renderAll();
-    openMobileEditor(note.id);
-  });
+    document.getElementById('btn-add-note').addEventListener('click', () => {
+        openModal();
+        toggleSidebar(false);
+    });
+    
+    document.getElementById('close-modal').addEventListener('click', () => modal.style.display = 'none');
+    
+    document.querySelectorAll('.dot').forEach(dot => {
+        dot.addEventListener('click', (e) => {
+            document.querySelectorAll('.dot').forEach(d => d.classList.remove('selected'));
+            e.target.classList.add('selected');
+            ui.color = e.target.dataset.color;
+        });
+    });
 
-  document.getElementById('back-btn').addEventListener('click', () => {
-    flushAndDiscardIfEmpty();
-    closeMobileEditor();
-  });
+    document.getElementById('save-note-btn').addEventListener('click', () => {
+        const title = document.getElementById('note-title').value;
+        const body = document.getElementById('note-body').value;
+        if (title || body) {
+            if (ui.editingId) {
+                manager.updateNote(ui.editingId, title, body, ui.color);
+            } else {
+                manager.addNote(title, body, ui.color);
+            }
+            modal.style.display = 'none';
+            ui.render(searchInput.value);
+        }
+    });
 
-  const mTitleEl = document.getElementById('mobile-note-title');
-  const mBodyEl = document.getElementById('mobile-note-body');
-  setupEditorListeners(mTitleEl, mBodyEl, document.getElementById('mobile-editor-meta'));
+    document.getElementById('notes-grid').addEventListener('click', (e) => {
+        if (e.target.closest('#trigger-new-note')) {
+            openModal();
+            return;
+        }
+        
+        const btn = e.target.closest('.action-btn');
+        if (btn) {
+            e.stopPropagation();
+            manager.deleteNote(btn.dataset.id);
+            ui.render(searchInput.value);
+            return;
+        }
 
-  const deleteModal = document.getElementById('delete-modal');
-  const deleteModalBackdrop = document.getElementById('delete-modal-backdrop');
-  const deleteConfirmBtn = document.getElementById('delete-confirm-btn');
-  const deleteCancelBtn = document.getElementById('delete-cancel-btn');
+        const card = e.target.closest('.note-card');
+        if (card && ui.view === 'active') {
+            const note = manager.getNote(card.dataset.id);
+            if (note) openModal(note);
+        }
+    });
 
-  function openDeleteModal() {
-    const activeId = getActiveNoteId();
-    if (!activeId) return;
-    deleteModal.classList.remove('hidden');
-    deleteModal.setAttribute('aria-hidden', 'false');
-  }
+    document.querySelectorAll('.tab').forEach(tabEl => {
+        tabEl.addEventListener('click', (e) => {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            e.target.classList.add('active');
+            ui.tab = e.target.dataset.tab;
+            ui.render(searchInput.value);
+        });
+    });
 
-  function closeDeleteModal() {
-    deleteModal.classList.add('hidden');
-    deleteModal.setAttribute('aria-hidden', 'true');
-  }
+    document.getElementById('nav-all').addEventListener('click', (e) => {
+        ui.view = 'active';
+        document.getElementById('nav-all').classList.add('active');
+        document.getElementById('nav-trash').classList.remove('active');
+        toggleSidebar(false);
+        ui.render(searchInput.value);
+    });
 
-  async function performDelete() {
-    const activeId = getActiveNoteId();
-    if (!activeId) return;
-    clearTimeout(saveTimer);
-    pendingSave = null;
-    closeDeleteModal();
-    await animateItemRemoval(activeId);
-    deleteNote(activeId);
-    renderAll(currentQuery());
-    const isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
-    (isMobile ? closeMobileEditor : closeEditor)();
-  }
+    document.getElementById('nav-trash').addEventListener('click', (e) => {
+        ui.view = 'trash';
+        document.getElementById('nav-trash').classList.add('active');
+        document.getElementById('nav-all').classList.remove('active');
+        toggleSidebar(false);
+        ui.render(searchInput.value);
+    });
 
-  document.getElementById('delete-btn').addEventListener('click', openDeleteModal);
-  document.getElementById('mobile-delete-btn').addEventListener('click', openDeleteModal);
-  deleteModalBackdrop.addEventListener('click', closeDeleteModal);
-  deleteCancelBtn.addEventListener('click', closeDeleteModal);
-  deleteConfirmBtn.addEventListener('click', performDelete);
-
-  document.getElementById('mobile-pin-btn').addEventListener('click', () => {
-    const activeId = getActiveNoteId();
-    if (!activeId) return;
-    flushAutoSave();
-    const note = togglePin(activeId);
-    setPinButtonState(document.getElementById('mobile-pin-btn'), note?.pinned);
-    renderAll(currentQuery());
-  });
-
-  document.getElementById('mobile-search-input').addEventListener('input', e => {
-    renderAll(e.target.value);
-  });
-
+    searchInput.addEventListener('input', (e) => ui.render(e.target.value));
 });

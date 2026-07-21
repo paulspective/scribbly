@@ -1,64 +1,90 @@
-const STORAGE_KEY = 'scribbly_notes';
+class NotesManager {
+    constructor() {
+        this.notes = JSON.parse(localStorage.getItem('scribbly_data')) || [];
+        this.cleanupTrash();
+    }
+    save() {
+        localStorage.setItem('scribbly_data', JSON.stringify(this.notes));
+    }
+    cleanupTrash() {
+        const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000;
+        const now = Date.now();
+        const initialLength = this.notes.length;
+        
+        this.notes = this.notes.filter(n => {
+            if (!n.deleted) return true;
+            if (!n.deletedAt) return true;
+            return (now - n.deletedAt) < thirtyDaysInMs;
+        });
 
-export function getNotes() {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-  } catch {
-    return [];
-  }
-}
+        if (this.notes.length !== initialLength) {
+            this.save();
+        }
+    }
+    addNote(title, body, color) {
+        const dateObj = new Date();
+        const newNote = {
+            id: Date.now().toString(),
+            title,
+            body,
+            color,
+            date: dateObj.toLocaleDateString('en-GB'),
+            time: dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ', ' + dateObj.toLocaleDateString('en-US', {weekday: 'long'}),
+            timestamp: dateObj.getTime(),
+            deleted: false,
+            deletedAt: null
+        };
+        this.notes.push(newNote);
+        this.save();
+    }
+    updateNote(id, title, body, color) {
+        const note = this.notes.find(n => n.id === id);
+        if (note) {
+            const dateObj = new Date();
+            note.title = title;
+            note.body = body;
+            note.color = color;
+            note.date = dateObj.toLocaleDateString('en-GB');
+            note.time = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ', ' + dateObj.toLocaleDateString('en-US', {weekday: 'long'});
+            note.timestamp = dateObj.getTime();
+            this.save();
+        }
+    }
+    deleteNote(id) {
+        const note = this.notes.find(n => n.id === id);
+        if (note) {
+            note.deleted = !note.deleted;
+            note.deletedAt = note.deleted ? Date.now() : null;
+            this.save();
+        }
+    }
+    getNote(id) {
+        return this.notes.find(n => n.id === id);
+    }
+    getNotes(isDeleted, search = '', tab = 'today') {
+        const now = new Date();
+        return this.notes
+            .filter(n => {
+                if (n.deleted !== isDeleted) return false;
+                const matchesSearch = n.title.toLowerCase().includes(search) || n.body.toLowerCase().includes(search);
+                if (!matchesSearch) return false;
 
-export function saveNotes(notes) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
-}
+                if (isDeleted) return true;
 
-export function createNote() {
-  const note = {
-    id: crypto.randomUUID(),
-    title: '',
-    body: '',
-    pinned: false,
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
-  };
-  const notes = getNotes();
-  notes.unshift(note);
-  saveNotes(notes);
-  return note;
-}
+                const noteDate = new Date(n.timestamp);
+                const isToday = noteDate.toDateString() === now.toDateString();
+                const diffTime = Math.abs(now - noteDate);
+                const diffDays = diffTime / (1000 * 60 * 60 * 24);
 
-export function updateNote(id, changes) {
-  const notes = getNotes();
-  const idx = notes.findIndex(n => n.id === id);
-  if (idx === -1) return null;
-  notes[idx] = { ...notes[idx], ...changes, updatedAt: Date.now() };
-  saveNotes(notes);
-  return notes[idx];
-}
-
-export function deleteNote(id) {
-  const notes = getNotes().filter(n => n.id !== id);
-  saveNotes(notes);
-}
-
-export function togglePin(id) {
-  const notes = getNotes();
-  const note = notes.find(n => n.id === id);
-  if (!note) return null;
-  return updateNote(id, { pinned: !note.pinned });
-}
-
-export function searchNotes(query) {
-  const q = query.toLowerCase().trim();
-  if (!q) return getNotes();
-  return getNotes().filter(n =>
-    n.title.toLowerCase().includes(q) ||
-    n.body.toLowerCase().includes(q)
-  );
-}
-
-export function getSortedNotes(notes) {
-  const pinned = notes.filter(n => n.pinned).sort((a, b) => b.updatedAt - a.updatedAt);
-  const rest   = notes.filter(n => !n.pinned).sort((a, b) => b.updatedAt - a.updatedAt);
-  return { pinned, rest };
+                if (tab === 'today') {
+                    return isToday;
+                } else if (tab === 'week') {
+                    return !isToday && diffDays <= 7;
+                } else if (tab === 'month') {
+                    return noteDate.getMonth() === now.getMonth() && noteDate.getFullYear() === now.getFullYear();
+                }
+                return true;
+            })
+            .sort((a, b) => b.timestamp - a.timestamp);
+    }
 }
