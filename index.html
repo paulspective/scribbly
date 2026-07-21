@@ -7,8 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Mulish&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="style.css">
-  <meta name="theme-color" content="#f0f2f5" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" id="theme-color-meta" content="#f0f2f5">
   <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
 </head>
 <body>
@@ -69,6 +68,10 @@
       </section>
     </main>
   </div>
+
+  <button id="fab-add-note" class="fab" aria-label="Add new note">
+    <iconify-icon icon="fluent:add-24-filled" width="26"></iconify-icon>
+  </button>
 
   <div class="modal" id="note-modal">
     <div class="modal-content">
