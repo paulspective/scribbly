@@ -4,8 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Scribbly</title>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Mulish&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <meta name="theme-color" content="#f0f2f5" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)">
   <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
 </head>
 <body>
@@ -14,7 +17,7 @@
     <aside class="sidebar" id="sidebar">
       <div class="brand">
         <iconify-icon icon="fluent:apps-add-in-24-filled" width="24"></iconify-icon>
-        <span>Dashboard</span>
+        <span class="text">Dashboard</span>
       </div>
 
       <div class="add-section">
@@ -39,7 +42,7 @@
           <button class="hamburger-btn" id="hamburger-btn">
             <iconify-icon icon="fluent:navigation-24-regular" width="24"></iconify-icon>
           </button>
-          <h1>Scribbly</h1>
+          <h1 class="app-title">Scribbly</h1>
         </div>
         <div class="search-box">
           <iconify-icon icon="fluent:search-24-regular" width="20"></iconify-icon>
@@ -48,7 +51,6 @@
       </header>
 
       <section class="notes-section">
-        <h2>My Notes</h2>
         <div class="notes-header-bar">
           <div class="tabs">
             <span class="tab active" data-tab="today">Todays</span>
@@ -72,7 +74,7 @@
     <div class="modal-content">
       <span class="close-btn" id="close-modal"><iconify-icon icon="fluent:dismiss-24-regular"></iconify-icon></span>
       <input type="text" id="note-title" placeholder="Title">
-      <textarea id="note-body" placeholder="Start typing..."></textarea>
+      <textarea id="note-body" placeholder="Start scribbling..."></textarea>
       <div class="color-palette">
         <span class="dot" data-color="#eada76" style="background-color: #eada76;"></span>
         <span class="dot" data-color="#7bb2db" style="background-color: #7bb2db;"></span>
