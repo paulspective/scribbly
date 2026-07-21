@@ -272,16 +272,18 @@ html {
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
-.note-card.is-removing {
-  pointer-events: none;
-  transform: translateY(100%) scale(0.94);
-  opacity: 0;
-  transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.28s ease;
-}
-
 .note-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 10px 25px var(--shadow);
+}
+
+.note-card.is-removing,
+.note-card.is-removing:hover {
+  pointer-events: none;
+  transform: translateY(70px) scale(0.9);
+  opacity: 0;
+  box-shadow: none;
+  transition: transform 0.36s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease 0.1s;
 }
 
 .note-date {
@@ -568,43 +570,6 @@ html {
     background: rgba(0, 0, 0, 0.5);
     z-index: 150;
     backdrop-filter: blur(4px);
-  }
-
-  .sidebar-overlay.active {
-    display: block;
-  }
-
-  .main-content {
-    padding: 25px 20px;
-  }
-
-  .top-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 20px;
-    margin-bottom: 30px;
-  }
-
-  .top-header-row {
-    width: 100%;
-    justify-content: flex-start;
-    gap: 15px;
-  }
-
-  .search-box {
-    width: 100%;
-  }
-
-  .notes-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .modal-content {
-    width: 90%;
-  }
-
-  .new-note-card {
-    display: none;
   }
 
   .sidebar-overlay.active {
