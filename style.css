@@ -30,7 +30,7 @@
     --text-primary: #f0f2f5;
     --text-secondary: #8a8e95;
     --border-color: #2c2c2c;
-    --card-action-bg: #ffffff;
+    --card-action-bg: #6b6b6b;
     --card-action-color: #111111;
     --shadow: rgba(0, 0, 0, 0.3);
   }
@@ -328,7 +328,7 @@ html {
 
 .note-actions {
   position: absolute;
-  top: 25px;
+  top: 20px;
   right: 25px;
   background: var(--card-action-bg);
   color: var(--card-action-color);
