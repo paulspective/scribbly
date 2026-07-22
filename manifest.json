@@ -1,0 +1,27 @@
+{
+  "name": "Scribbly",
+  "short_name": "Scribbly",
+  "description": "Scribbly - Quick, clean note-taking.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f0f2f5",
+  "theme_color": "#f0f2f5",
+  "orientation": "portrait-primary",
+ "icons": [
+    {
+      "src": "assets/favicons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/favicons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "categories": [
+    "productivity"
+  ],
+  "lang": "en",
+  "dir": "ltr"
+}
