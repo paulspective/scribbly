@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'scribbly-v1';
+const CACHE_VERSION = 'scribbly-v2';
 const ICONIFY_CACHE = 'iconify-cache';
 
 const APP_SHELL = [
@@ -9,11 +9,8 @@ const APP_SHELL = [
   './scripts/main.js',
   './scripts/notes.js',
   './scripts/ui.js',
-  './assets/fonts/Manrope-Regular.ttf',
-  './assets/fonts/Manrope-Medium.ttf',
-  './assets/fonts/Manrope-SemiBold.ttf',
-  './assets/fonts/Manrope-Bold.ttf',
-  './assets/fonts/Caveat-Bold.ttf',
+  './assets/fonts/DancingScript-VariableFont_wght.ttf',
+  './assets/fonts/Manrope-VariableFont_wght.ttf',
   './assets/favicons/favicon.ico',
   './assets/favicons/favicon-16x16.png',
   './assets/favicons/favicon-32x32.png',
