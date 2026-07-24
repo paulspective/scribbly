@@ -553,7 +553,7 @@ html {
 
   .tabs {
     display: flex;
-    gap: 10px;
+    gap: 15px;
   }
 
   .hamburger-btn {
@@ -566,7 +566,9 @@ html {
     top: 0;
     left: 0;
     height: 100%;
-    width: 240px;
+    width: 260px;
+    border-radius: 0 12px 12px 0;
+    border: none;
     z-index: 200;
     transform: translateX(-100%);
     transition: transform 0.3s ease
