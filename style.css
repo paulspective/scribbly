@@ -325,6 +325,7 @@ html {
   -webkit-line-clamp: 5;
   line-clamp: 5;
   -webkit-box-orient: vertical;
+  white-space: pre-wrap;
 }
 
 .note-footer {
