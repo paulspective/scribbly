@@ -567,7 +567,6 @@ html {
     left: 0;
     height: 100%;
     width: 260px;
-    border-radius: 0 12px 12px 0;
     border: none;
     z-index: 200;
     transform: translateX(-100%);
@@ -579,7 +578,9 @@ html {
   }
 
   .sidebar-overlay {
-    display: none;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
     position: fixed;
     top: 0;
     left: 0;
@@ -588,10 +589,13 @@ html {
     background: rgba(0, 0, 0, 0.5);
     z-index: 150;
     backdrop-filter: blur(4px);
+    transition: opacity 0.3s ease, visibility 0.3s ease;
   }
 
   .sidebar-overlay.active {
-    display: block;
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
   }
 
   .main-content {
