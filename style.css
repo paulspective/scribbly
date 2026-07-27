@@ -83,7 +83,6 @@ html {
   padding: 60px 30px;
   display: flex;
   flex-direction: column;
-  border-right: 1px solid var(--border-color);
   transition: transform 0.3s ease;
 }
 
@@ -94,7 +93,6 @@ html {
   font-size: 18px;
   font-weight: 700;
   margin-bottom: 50px;
-  letter-spacing: 1px;
   color: var(--text-primary);
 }
 
