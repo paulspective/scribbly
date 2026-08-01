@@ -14,12 +14,14 @@ if ('serviceWorker' in navigator) {
 document.addEventListener('DOMContentLoaded', () => {
     const manager = new NotesManager();
     const ui = new UI(manager);
-    
+
     const modal = document.getElementById('note-modal');
     const searchInput = document.getElementById('search-input');
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebar-overlay');
     const hamburgerBtn = document.getElementById('hamburger-btn');
+    const noteTitleInput = document.getElementById('note-title');
+    const noteBodyInput = document.getElementById('note-body');
 
     ui.render();
 
@@ -46,18 +48,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const openModal = (note = null) => {
         if (note) {
             ui.editingId = note.id;
-            document.getElementById('note-title').value = note.title;
-            document.getElementById('note-body').value = note.body;
+            noteTitleInput.value = note.title;
+            noteBodyInput.value = note.body;
             ui.color = note.color;
         } else {
             ui.editingId = null;
-            document.getElementById('note-title').value = '';
-            document.getElementById('note-body').value = '';
+            noteTitleInput.value = '';
+            noteBodyInput.value = '';
             ui.color = '#eada76';
         }
-        document.querySelectorAll('.dot').forEach(d => {
-            d.classList.toggle('selected', d.dataset.color === ui.color);
+
+        manager.setEditorPlaceholder(noteBodyInput);
+
+        document.querySelectorAll('.dot').forEach((dot) => {
+            dot.classList.toggle('selected', dot.dataset.color === ui.color);
         });
+
         modal.classList.add('active');
     };
 
@@ -82,14 +88,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.getElementById('save-note-btn').addEventListener('click', () => {
-        const title = document.getElementById('note-title').value;
-        const body = document.getElementById('note-body').value;
+        const title = noteTitleInput.value;
+        const body = noteBodyInput.value;
+
         if (title || body) {
             if (ui.editingId) {
                 manager.updateNote(ui.editingId, title, body, ui.color);
             } else {
                 manager.addNote(title, body, ui.color);
             }
+
             modal.classList.remove('active');
             ui.render(searchInput.value);
         }
