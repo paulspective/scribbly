@@ -279,6 +279,7 @@ html {
   color: #333;
   cursor: default;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
+  min-width: 0;
 }
 
 .note-card:hover {
