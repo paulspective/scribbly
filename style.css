@@ -622,6 +622,11 @@ html {
   font-weight: 700;
   cursor: pointer;
   font-size: 15px;
+  transition: transform 0.15s ease;
+}
+
+#auth-submit-btn:active {
+  transform: scale(0.98);
 }
 
 .auth-switch-text,
