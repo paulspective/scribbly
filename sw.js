@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'scribbly-v2';
+const CACHE_VERSION = 'scribbly-v3';
 const ICONIFY_CACHE = 'iconify-cache';
 
 const APP_SHELL = [
@@ -8,6 +8,7 @@ const APP_SHELL = [
   './manifest.json',
   './scripts/main.js',
   './scripts/notes.js',
+  './scripts/auth.js',
   './scripts/ui.js',
   './assets/fonts/DancingScript-VariableFont_wght.ttf',
   './assets/fonts/Manrope-VariableFont_wght.ttf',
