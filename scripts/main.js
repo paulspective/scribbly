@@ -1,5 +1,6 @@
 import { NotesManager } from './notes.js';
 import { UI } from './ui.js';
+import { signup, login, checkSession } from './auth.js';
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -78,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.getElementById('close-modal').addEventListener('click', () => modal.classList.remove('active'));
-    
+
     document.querySelectorAll('.dot').forEach(dot => {
         dot.addEventListener('click', (e) => {
             document.querySelectorAll('.dot').forEach(d => d.classList.remove('selected'));
@@ -120,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
             openModal();
             return;
         }
-        
+
         const btn = e.target.closest('.action-btn');
         if (btn) {
             e.stopPropagation();
@@ -164,4 +165,121 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     searchInput.addEventListener('input', (e) => ui.render(e.target.value));
+
+    // --- Auth ---
+    const authModal = document.getElementById('auth-modal');
+    const authForm = document.getElementById('auth-form');
+    const authEmailInput = document.getElementById('auth-email');
+    const authPasswordInput = document.getElementById('auth-password');
+    const authError = document.getElementById('auth-error');
+    const authSubmitBtn = document.getElementById('auth-submit-btn');
+    const authSwitchMsg = document.getElementById('auth-switch-msg');
+    const authSwitchLink = document.getElementById('auth-switch-link');
+    const authGuestLink = document.getElementById('auth-guest-link');
+    const navAccountLabel = document.getElementById('nav-account-label');
+    const togglePasswordBtn = document.getElementById('toggle-auth-password');
+
+    const GUEST_KEY = 'scribbly_guest_dismissed';
+    let authMode = 'login';
+
+    const openAuthModal = () => {
+        authError.textContent = '';
+        authForm.reset();
+        authModal.classList.add('active');
+    };
+
+    const closeAuthModal = () => authModal.classList.remove('active');
+
+    const setAuthMode = (mode) => {
+        authMode = mode;
+        document.querySelectorAll('.auth-tab').forEach((tab) => {
+            tab.classList.toggle('active', tab.dataset.authTab === mode);
+        });
+        authError.textContent = '';
+
+        if (mode === 'login') {
+            authSubmitBtn.textContent = 'Log in';
+            authPasswordInput.autocomplete = 'current-password';
+            authSwitchMsg.textContent = "Don't have an account?";
+            authSwitchLink.textContent = 'Sign up';
+        } else {
+            authSubmitBtn.textContent = 'Sign up';
+            authPasswordInput.autocomplete = 'new-password';
+            authSwitchMsg.textContent = 'Already have an account?';
+            authSwitchLink.textContent = 'Log in';
+        }
+    };
+
+    document.querySelectorAll('.auth-tab').forEach((tab) => {
+        tab.addEventListener('click', () => setAuthMode(tab.dataset.authTab));
+    });
+
+    authSwitchLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        setAuthMode(authMode === 'login' ? 'signup' : 'login');
+    });
+
+    togglePasswordBtn.addEventListener('click', () => {
+        const isPassword = authPasswordInput.type === 'password';
+        authPasswordInput.type = isPassword ? 'text' : 'password';
+        togglePasswordBtn.textContent = isPassword ? 'Hide' : 'Show';
+    });
+
+    document.getElementById('close-auth-modal').addEventListener('click', closeAuthModal);
+
+    document.getElementById('nav-account').addEventListener('click', (e) => {
+        e.preventDefault();
+        toggleSidebar(false);
+        openAuthModal();
+    });
+
+    authGuestLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        localStorage.setItem(GUEST_KEY, 'true');
+        closeAuthModal();
+    });
+
+    authForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        authError.textContent = '';
+        authSubmitBtn.disabled = true;
+
+        const email = authEmailInput.value.trim();
+        const password = authPasswordInput.value;
+        const action = authMode === 'login' ? login : signup;
+        const result = await action(email, password);
+
+        authSubmitBtn.disabled = false;
+
+        if (!result.ok) {
+            authError.textContent = result.data.error || 'Something went wrong';
+            return;
+        }
+
+        if (authMode === 'signup') {
+            const loginResult = await login(email, password);
+            if (!loginResult.ok) {
+                authError.textContent = 'Account created — please log in';
+                setAuthMode('login');
+                return;
+            }
+        }
+
+        localStorage.removeItem(GUEST_KEY);
+        navAccountLabel.textContent = email;
+        closeAuthModal();
+        // TODO: one-time upload of existing local notes happens here (next step)
+    });
+    checkSession().then((result) => {
+        if (result.ok) {
+            navAccountLabel.textContent = result.data.email;
+            localStorage.removeItem(GUEST_KEY);
+        } else if (!localStorage.getItem(GUEST_KEY)) {
+            openAuthModal();
+        }
+    }).catch(() => {
+        if (!localStorage.getItem(GUEST_KEY)) {
+            openAuthModal();
+        }
+    });
 });
