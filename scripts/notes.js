@@ -1,3 +1,5 @@
+import { request } from './auth.js';
+
 export class NotesManager {
     editorPlaceholder = [
         'Start scribbling...',
@@ -9,6 +11,20 @@ export class NotesManager {
     ];
 
     constructor() {
+        this.isAuthenticated = false;
+        this.userId = null;
+        this.serverHydrated = false;
+        this.localMigrationDone = localStorage.getItem('scribbly_migration_done') === 'true';
+
+        this.loadLocalNotes();
+        this.cleanupTrash();
+    }
+
+    random(arr) {
+        return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    loadLocalNotes() {
         const stored = localStorage.getItem('scribbly_data');
 
         if (stored === null) {
@@ -17,12 +33,25 @@ export class NotesManager {
         } else {
             this.notes = JSON.parse(stored) || [];
         }
-
-        this.cleanupTrash();
     }
 
-    random(arr) {
-        return arr[Math.floor(Math.random() * arr.length)];
+    normalizeNote(note) {
+        const timestamp = typeof note.timestamp === 'number'
+            ? note.timestamp
+            : new Date(note.timestamp ?? Date.now()).getTime();
+
+        return {
+            ...note,
+            id: note.id ?? note._id?.toString() ?? '',
+            title: note.title ?? '',
+            body: note.body ?? '',
+            color: note.color ?? '#eada76',
+            date: note.date ?? '',
+            time: note.time ?? '',
+            timestamp,
+            deleted: Boolean(note.deleted),
+            deletedAt: note.deletedAt ? new Date(note.deletedAt).getTime() : null,
+        };
     }
 
     setEditorPlaceholder(editorEl) {
@@ -42,7 +71,85 @@ export class NotesManager {
     }
 
     save() {
+        if (this.isAuthenticated) {
+            return;
+        }
+
         localStorage.setItem('scribbly_data', JSON.stringify(this.notes));
+    }
+
+    async setAuthContext(isAuthenticated, userId = null) {
+        const changed = this.isAuthenticated !== isAuthenticated || this.userId !== userId;
+        this.isAuthenticated = isAuthenticated;
+        this.userId = userId;
+
+        if (!isAuthenticated) {
+            this.serverHydrated = false;
+            this.save();
+            return;
+        }
+
+        if (changed || !this.serverHydrated) {
+            await this.syncWithServer();
+        }
+    }
+
+    async syncWithServer() {
+        if (!this.isAuthenticated) {
+            return;
+        }
+
+        try {
+            const result = await request('/notes');
+            if (!result.ok) {
+                if (result.status === 401) {
+                    this.isAuthenticated = false;
+                    this.serverHydrated = false;
+                }
+                return;
+            }
+
+            const serverNotes = (result.data.notes || []).map((note) => this.normalizeNote(note));
+            if (serverNotes.length > 0) {
+                this.notes = serverNotes;
+                this.serverHydrated = true;
+                return;
+            }
+
+            const localSnapshot = this.notes.map((note) => ({ ...note }));
+            if (localSnapshot.length > 0 && !this.localMigrationDone) {
+                await this.uploadLocalNotes(localSnapshot);
+                this.notes = localSnapshot;
+                this.serverHydrated = true;
+                return;
+            }
+
+            this.notes = [];
+            this.serverHydrated = true;
+        } catch (error) {
+            console.error('Failed to sync notes with the server', error);
+        }
+    }
+
+    async uploadLocalNotes(notes) {
+        if (!this.isAuthenticated || this.localMigrationDone) {
+            return;
+        }
+
+        for (const note of notes) {
+            const payload = {
+                ...note,
+                id: note.id || `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+            };
+
+            await request('/notes', {
+                method: 'POST',
+                body: JSON.stringify(payload),
+            });
+        }
+
+        this.localMigrationDone = true;
+        localStorage.setItem('scribbly_migration_done', 'true');
     }
 
     cleanupTrash() {
@@ -61,7 +168,7 @@ export class NotesManager {
         }
     }
 
-    addNote(title, body, color) {
+    async addNote(title, body, color) {
         const dateObj = new Date();
         const newNote = {
             id: Date.now().toString(),
@@ -75,31 +182,99 @@ export class NotesManager {
             deletedAt: null
         };
 
+        if (this.isAuthenticated) {
+            const result = await request('/notes', {
+                method: 'POST',
+                body: JSON.stringify(newNote),
+            });
+
+            if (!result.ok) {
+                return null;
+            }
+
+            const serverNote = this.normalizeNote(result.data.note || result.data);
+            this.notes = [serverNote, ...this.notes.filter((entry) => entry.id !== serverNote.id)];
+            this.serverHydrated = true;
+            return serverNote;
+        }
+
         this.notes.push(newNote);
         this.save();
+        return newNote;
     }
 
-    updateNote(id, title, body, color) {
+    async updateNote(id, title, body, color) {
         const note = this.notes.find((entry) => entry.id === id);
-        if (note) {
-            const dateObj = new Date();
-            note.title = title;
-            note.body = body;
-            note.color = color;
-            note.date = dateObj.toLocaleDateString('en-GB');
-            note.time = `${dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}, ${dateObj.toLocaleDateString('en-US', { weekday: 'long' })}`;
-            note.timestamp = dateObj.getTime();
-            this.save();
+        if (!note) {
+            return null;
         }
+
+        const dateObj = new Date();
+        const updatedNote = {
+            ...note,
+            title,
+            body,
+            color,
+            date: dateObj.toLocaleDateString('en-GB'),
+            time: `${dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}, ${dateObj.toLocaleDateString('en-US', { weekday: 'long' })}`,
+            timestamp: dateObj.getTime(),
+        };
+
+        if (this.isAuthenticated) {
+            const result = await request(`/notes/${id}`, {
+                method: 'PUT',
+                body: JSON.stringify(updatedNote),
+            });
+
+            if (!result.ok) {
+                return null;
+            }
+
+            const serverNote = this.normalizeNote(result.data.note || result.data);
+            this.notes = this.notes.map((entry) => entry.id === id ? serverNote : entry);
+            this.serverHydrated = true;
+            return serverNote;
+        }
+
+        note.title = title;
+        note.body = body;
+        note.color = color;
+        note.date = dateObj.toLocaleDateString('en-GB');
+        note.time = `${dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}, ${dateObj.toLocaleDateString('en-US', { weekday: 'long' })}`;
+        note.timestamp = dateObj.getTime();
+        this.save();
+        return note;
     }
 
-    deleteNote(id) {
+    async deleteNote(id) {
         const note = this.notes.find((entry) => entry.id === id);
-        if (note) {
-            note.deleted = !note.deleted;
-            note.deletedAt = note.deleted ? Date.now() : null;
-            this.save();
+        if (!note) {
+            return null;
         }
+
+        const nextDeleted = !note.deleted;
+        const nextDeletedAt = nextDeleted ? Date.now() : null;
+
+        if (this.isAuthenticated) {
+            const result = await request(`/notes/${id}`, {
+                method: 'PATCH',
+                body: JSON.stringify({ deleted: nextDeleted, deletedAt: nextDeletedAt }),
+            });
+
+            if (!result.ok) {
+                return null;
+            }
+
+            const serverNote = this.normalizeNote(result.data.note || result.data);
+            this.notes = this.notes.map((entry) => entry.id === id ? serverNote : entry);
+            this.serverHydrated = true;
+            return serverNote;
+        }
+
+        note.deleted = nextDeleted;
+        note.deletedAt = nextDeletedAt;
+        this.save();
+        return note;
     }
 
     getNote(id) {
