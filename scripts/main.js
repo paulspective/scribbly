@@ -88,15 +88,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    document.getElementById('save-note-btn').addEventListener('click', () => {
+    document.getElementById('save-note-btn').addEventListener('click', async () => {
         const title = noteTitleInput.value;
         const body = noteBodyInput.value;
 
         if (title || body) {
             if (ui.editingId) {
-                manager.updateNote(ui.editingId, title, body, ui.color);
+                await manager.updateNote(ui.editingId, title, body, ui.color);
             } else {
-                manager.addNote(title, body, ui.color);
+                await manager.addNote(title, body, ui.color);
             }
 
             modal.classList.remove('active');
@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
             e.stopPropagation();
             const id = btn.dataset.id;
             await ui.animateRemoval(id);
-            manager.deleteNote(id);
+            await manager.deleteNote(id);
             ui.render(searchInput.value);
             return;
         }
@@ -270,17 +270,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const username = email.split('@')[0];
 
         navAccountLabel.textContent = username.length > 10 ? username.slice(0, 10) + '...' : username;
+        await manager.setAuthContext(true, result.data?.userId || null);
+        ui.render(searchInput.value);
         closeAuthModal();
-        // TODO: one-time upload of existing local notes happens here (next step)
     });
-    checkSession().then((result) => {
+    checkSession().then(async (result) => {
         if (result.ok) {
             navAccountLabel.textContent = result.data.email;
             localStorage.removeItem(GUEST_KEY);
+            await manager.setAuthContext(true, result.data.userId);
+            ui.render(searchInput.value);
         } else if (!localStorage.getItem(GUEST_KEY)) {
+            await manager.setAuthContext(false);
             openAuthModal();
         }
-    }).catch(() => {
+    }).catch(async () => {
+        await manager.setAuthContext(false);
         if (!localStorage.getItem(GUEST_KEY)) {
             openAuthModal();
         }
