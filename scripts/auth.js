@@ -1,6 +1,6 @@
-const API_BASE_URL = 'https://scribbly-server.onrender.com';
+export const API_BASE_URL = 'https://scribbly-server.onrender.com';
 
-async function request(path, options = {}) {
+export async function request(path, options = {}) {
   try {
     const res = await fetch(`${API_BASE_URL}${path}`, {
       ...options,
