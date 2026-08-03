@@ -180,7 +180,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const togglePasswordBtn = document.getElementById('toggle-auth-password');
 
     const GUEST_KEY = 'scribbly_guest_dismissed';
+    const ACCOUNT_LABEL_KEY = 'scribbly_account_label';
     let authMode = 'login';
+
+    const formatAccountLabel = (email) => {
+        const username = String(email || '').split('@')[0] || 'Account';
+        return username.length > 10 ? username.slice(0, 10) + '...' : username;
+    };
+
+    const setAccountLabel = (value) => {
+        const label = formatAccountLabel(value);
+        navAccountLabel.textContent = label;
+        localStorage.setItem(ACCOUNT_LABEL_KEY, label);
+    };
 
     const openAuthModal = () => {
         authError.textContent = '';
@@ -227,15 +239,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('close-auth-modal').addEventListener('click', closeAuthModal);
 
+    const storedAccountLabel = localStorage.getItem(ACCOUNT_LABEL_KEY);
+    if (storedAccountLabel) {
+        navAccountLabel.textContent = storedAccountLabel;
+    }
+
     document.getElementById('nav-account').addEventListener('click', (e) => {
         e.preventDefault();
         toggleSidebar(false);
+
+        if (manager.isAuthenticated) {
+            return;
+        }
+
         openAuthModal();
     });
 
     authGuestLink.addEventListener('click', (e) => {
         e.preventDefault();
         localStorage.setItem(GUEST_KEY, 'true');
+        navAccountLabel.textContent = 'Guest';
+        localStorage.setItem(ACCOUNT_LABEL_KEY, 'Guest');
         closeAuthModal();
     });
 
@@ -267,16 +291,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         localStorage.removeItem(GUEST_KEY);
 
-        const username = email.split('@')[0];
-
-        navAccountLabel.textContent = username.length > 10 ? username.slice(0, 10) + '...' : username;
+        setAccountLabel(email);
         await manager.setAuthContext(true, result.data?.userId || null);
         ui.render(searchInput.value);
         closeAuthModal();
     });
     checkSession().then(async (result) => {
         if (result.ok) {
-            navAccountLabel.textContent = result.data.email;
+            setAccountLabel(result.data.email);
             localStorage.removeItem(GUEST_KEY);
             await manager.setAuthContext(true, result.data.userId);
             ui.render(searchInput.value);
