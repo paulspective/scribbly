@@ -266,7 +266,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         localStorage.removeItem(GUEST_KEY);
-        navAccountLabel.textContent = email;
+
+        const username = email.split('@')[0];
+
+        navAccountLabel.textContent = username.length > 10 ? username.slice(0, 10) + '...' : username;
         closeAuthModal();
         // TODO: one-time upload of existing local notes happens here (next step)
     });
