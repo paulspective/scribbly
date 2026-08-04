@@ -1,5 +1,4 @@
 import { request } from './auth.js';
-
 export class NotesManager {
     editorPlaceholder = [
         'Start scribbling...',
@@ -18,6 +17,9 @@ export class NotesManager {
 
         this.loadLocalNotes();
         this.cleanupTrash();
+        this.pendingCache = JSON.parse(localStorage.getItem('scribbly_pending_cache') || '[]');
+
+        window.addEventListener('online', () => this.flushPendingSync());
     }
 
     random(arr) {
@@ -51,6 +53,9 @@ export class NotesManager {
             timestamp,
             deleted: Boolean(note.deleted),
             deletedAt: note.deletedAt ? new Date(note.deletedAt).getTime() : null,
+            pendingSync: false,
+            pendingOp: undefined,
+            syncError: false,
         };
     }
 
@@ -72,10 +77,20 @@ export class NotesManager {
 
     save() {
         if (this.isAuthenticated) {
+            this.savePendingCache();
             return;
         }
 
         localStorage.setItem('scribbly_data', JSON.stringify(this.notes));
+    }
+
+    savePendingCache() {
+        const pending = this.notes.filter((note) => note.pendingSync);
+        if (pending.length > 0) {
+            localStorage.setItem('scribbly_pending_cache', JSON.stringify(pending));
+        } else {
+            localStorage.removeItem('scribbly_pending_cache');
+        }
     }
 
     async setAuthContext(isAuthenticated, userId = null) {
@@ -91,6 +106,15 @@ export class NotesManager {
 
         if (changed || !this.serverHydrated) {
             await this.syncWithServer();
+
+            if (this.pendingCache.length > 0) {
+                this.pendingCache.forEach((pendingNote) => {
+                    this.notes = [pendingNote, ...this.notes.filter((entry) => entry.id !== pendingNote.id)];
+                });
+                this.pendingCache = [];
+            }
+
+            await this.flushPendingSync();
         }
     }
 
@@ -189,7 +213,10 @@ export class NotesManager {
             });
 
             if (!result.ok) {
-                return null;
+                this.markSyncFailure(newNote, 'create', result);
+                this.notes.push(newNote);
+                this.save();
+                return newNote;
             }
 
             const serverNote = this.normalizeNote(result.data.note || result.data);
@@ -227,7 +254,10 @@ export class NotesManager {
             });
 
             if (!result.ok) {
-                return null;
+                this.markSyncFailure(updatedNote, 'update', result);
+                this.notes = this.notes.map((entry) => entry.id === id ? updatedNote : entry);
+                this.save();
+                return updatedNote;
             }
 
             const serverNote = this.normalizeNote(result.data.note || result.data);
@@ -262,7 +292,11 @@ export class NotesManager {
             });
 
             if (!result.ok) {
-                return null;
+                const updatedNote = { ...note, deleted: nextDeleted, deletedAt: nextDeletedAt };
+                this.markSyncFailure(updatedNote, 'delete', result);
+                this.notes = this.notes.map((entry) => entry.id === id ? updatedNote : entry);
+                this.save();
+                return updatedNote;
             }
 
             const serverNote = this.normalizeNote(result.data.note || result.data);
@@ -275,6 +309,59 @@ export class NotesManager {
         note.deletedAt = nextDeletedAt;
         this.save();
         return note;
+    }
+
+    markSyncFailure(note, op, result) {
+        if (result.status === 0) {
+            note.pendingSync = true;
+            note.pendingOp = op;
+            note.syncError = false;
+        } else {
+            note.pendingSync = false;
+            note.syncError = true;
+        }
+    }
+
+    async flushPendingSync() {
+        if (!this.isAuthenticated || typeof navigator !== 'undefined' && navigator.onLine === false) {
+            return;
+        }
+
+        const pending = this.notes.filter((note) => note.pendingSync);
+
+        for (const note of pending) {
+            let result;
+            const { pendingSync: _p, pendingOp: _o, syncError: _s, ...payload } = note;
+
+            if (note.pendingOp === 'delete') {
+                result = await request(`/notes/${note.id}`, {
+                    method: 'PATCH',
+                    body: JSON.stringify({ deleted: note.deleted, deletedAt: note.deletedAt }),
+                });
+            } else if (note.pendingOp === 'update') {
+                result = await request(`/notes/${note.id}`, {
+                    method: 'PUT',
+                    body: JSON.stringify(payload),
+                });
+            } else {
+                result = await request('/notes', {
+                    method: 'POST',
+                    body: JSON.stringify(payload),
+                });
+            }
+
+            if (result.ok) {
+                const serverNote = this.normalizeNote(result.data.note || result.data);
+                this.notes = this.notes.map((entry) => entry.id === note.id ? serverNote : entry);
+            } else if (result.status !== 0) {
+                this.notes = this.notes.map((entry) =>
+                    entry.id === note.id ? { ...entry, pendingSync: false, syncError: true } : entry
+                );
+            }
+        }
+
+        this.serverHydrated = true;
+        this.savePendingCache();
     }
 
     getNote(id) {
