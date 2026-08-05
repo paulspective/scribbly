@@ -64,6 +64,7 @@ body {
 
 html {
   scroll-behavior: smooth;
+  touch-action: manipulation;
 }
 
 .app-container {
@@ -126,6 +127,7 @@ html {
   color: var(--text-secondary);
   font-size: 14px;
   font-weight: 600;
+  transition: color 0.2s ease;
 }
 
 .nav-menu a.active {
@@ -177,7 +179,7 @@ html {
   align-items: center;
   gap: 10px;
   background: var(--bg-search);
-  padding: 12px 20px;
+  padding: 15px 20px;
   border-radius: 8px;
   width: 350px;
 }
