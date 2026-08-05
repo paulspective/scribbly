@@ -85,7 +85,7 @@ export class NotesManager {
     }
 
     savePendingCache() {
-        const pending = this.notes.filter((note) => note.pendingSync);
+        const pending = this.notes.filter((note) => note.pendingSync || note.syncError);
         if (pending.length > 0) {
             localStorage.setItem('scribbly_pending_cache', JSON.stringify(pending));
         } else {
@@ -282,6 +282,12 @@ export class NotesManager {
             return null;
         }
 
+        if (this.isAuthenticated && note.pendingOp === 'create' && note.pendingSync) {
+            this.notes = this.notes.filter((entry) => entry.id !== id);
+            this.savePendingCache();
+            return null;
+        }
+
         const nextDeleted = !note.deleted;
         const nextDeletedAt = nextDeleted ? Date.now() : null;
 
@@ -314,7 +320,7 @@ export class NotesManager {
     markSyncFailure(note, op, result) {
         if (result.status === 0) {
             note.pendingSync = true;
-            note.pendingOp = op;
+            note.pendingOp = note.pendingOp === 'create' ? 'create' : op;
             note.syncError = false;
         } else {
             note.pendingSync = false;
@@ -323,45 +329,53 @@ export class NotesManager {
     }
 
     async flushPendingSync() {
+        if (this.isFlushingSync) {
+            return;
+        }
         if (!this.isAuthenticated || typeof navigator !== 'undefined' && navigator.onLine === false) {
             return;
         }
 
-        const pending = this.notes.filter((note) => note.pendingSync);
+        this.isFlushingSync = true;
+        try {
+            const pending = this.notes.filter((note) => note.pendingSync);
 
-        for (const note of pending) {
-            let result;
-            const { pendingSync: _p, pendingOp: _o, syncError: _s, ...payload } = note;
+            for (const note of pending) {
+                let result;
+                const { pendingSync: _p, pendingOp: _o, syncError: _s, ...payload } = note;
 
-            if (note.pendingOp === 'delete') {
-                result = await request(`/notes/${note.id}`, {
-                    method: 'PATCH',
-                    body: JSON.stringify({ deleted: note.deleted, deletedAt: note.deletedAt }),
-                });
-            } else if (note.pendingOp === 'update') {
-                result = await request(`/notes/${note.id}`, {
-                    method: 'PUT',
-                    body: JSON.stringify(payload),
-                });
-            } else {
-                result = await request('/notes', {
-                    method: 'POST',
-                    body: JSON.stringify(payload),
-                });
+                if (note.pendingOp === 'delete') {
+                    result = await request(`/notes/${note.id}`, {
+                        method: 'PATCH',
+                        body: JSON.stringify({ deleted: note.deleted, deletedAt: note.deletedAt }),
+                    });
+                } else if (note.pendingOp === 'update') {
+                    result = await request(`/notes/${note.id}`, {
+                        method: 'PUT',
+                        body: JSON.stringify(payload),
+                    });
+                } else {
+                    result = await request('/notes', {
+                        method: 'POST',
+                        body: JSON.stringify(payload),
+                    });
+                }
+
+                if (result.ok) {
+                    const serverNote = this.normalizeNote(result.data.note || result.data);
+                    this.notes = this.notes.map((entry) => entry.id === note.id ? serverNote : entry);
+                } else if (result.status !== 0) {
+                    this.notes = this.notes.map((entry) =>
+                        entry.id === note.id ? { ...entry, pendingSync: false, syncError: true } : entry
+                    );
+                }
             }
 
-            if (result.ok) {
-                const serverNote = this.normalizeNote(result.data.note || result.data);
-                this.notes = this.notes.map((entry) => entry.id === note.id ? serverNote : entry);
-            } else if (result.status !== 0) {
-                this.notes = this.notes.map((entry) =>
-                    entry.id === note.id ? { ...entry, pendingSync: false, syncError: true } : entry
-                );
-            }
+            this.serverHydrated = true;
+            this.savePendingCache();
+        } finally {
+            this.isFlushingSync = false;
         }
-
-        this.serverHydrated = true;
-        this.savePendingCache();
     }
 
     getNote(id) {
