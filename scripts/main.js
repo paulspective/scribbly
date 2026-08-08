@@ -292,21 +292,52 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.removeItem(GUEST_KEY);
 
         setAccountLabel(email);
-        await manager.setAuthContext(true, result.data?.userId || null);
+        const loggedInUserId = result.data?.userId || null;
+        rememberLastSession(loggedInUserId, email);
+        await manager.setAuthContext(true, loggedInUserId);
         ui.render(searchInput.value);
         closeAuthModal();
     });
+
+    const LAST_SESSION_KEY = 'scribbly_last_session';
+    const rememberLastSession = (userId, email) => {
+        localStorage.setItem(LAST_SESSION_KEY, JSON.stringify({ userId, email }));
+    };
+    const forgetLastSession = () => localStorage.removeItem(LAST_SESSION_KEY);
+
     checkSession().then(async (result) => {
         if (result.ok) {
             setAccountLabel(result.data.email);
             localStorage.removeItem(GUEST_KEY);
+            rememberLastSession(result.data.userId, result.data.email);
             await manager.setAuthContext(true, result.data.userId);
             ui.render(searchInput.value);
-        } else if (!localStorage.getItem(GUEST_KEY)) {
+            return;
+        }
+
+        if (result.status === 0) {
+            const lastSession = JSON.parse(localStorage.getItem(LAST_SESSION_KEY) || 'null');
+            if (lastSession) {
+                setAccountLabel(lastSession.email);
+                await manager.setAuthContext(true, lastSession.userId);
+                ui.render(searchInput.value);
+                return;
+            }
+        }
+
+        forgetLastSession();
+        if (!localStorage.getItem(GUEST_KEY)) {
             await manager.setAuthContext(false);
             openAuthModal();
         }
     }).catch(async () => {
+        const lastSession = JSON.parse(localStorage.getItem(LAST_SESSION_KEY) || 'null');
+        if (lastSession) {
+            setAccountLabel(lastSession.email);
+            await manager.setAuthContext(true, lastSession.userId);
+            ui.render(searchInput.value);
+            return;
+        }
         await manager.setAuthContext(false);
         if (!localStorage.getItem(GUEST_KEY)) {
             openAuthModal();
