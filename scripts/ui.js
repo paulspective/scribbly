@@ -80,15 +80,16 @@ export class UI {
             emptyMsg.textContent = 'No scribbles found for this time period.';
             this.grid.appendChild(emptyMsg);
         }
-        
-        notes.forEach(note => {
+
+        notes.forEach((note, index) => {
             const card = document.createElement('div');
             card.className = 'note-card';
             card.style.backgroundColor = note.color;
+            card.style.animationDelay = `${Math.min(index * 35, 210)}ms`;
             card.dataset.id = note.id;
-            
+
             const actionIcon = this.view === 'trash' ? 'fluent:arrow-undo-24-regular' : 'fluent:delete-24-regular';
-            
+
             card.innerHTML = `
                 <div class="note-date">${note.date}</div>
                 <div class="note-title" title="${escHtml(note.title)}">${escHtml(note.title)}</div>
