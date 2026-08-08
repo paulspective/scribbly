@@ -185,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const formatAccountLabel = (email) => {
         const username = String(email || '').split('@')[0] || 'Account';
-        return username.length > 10 ? username.slice(0, 10) + '...' : username;
+        return username.length > 15 ? username.slice(0, 15) + '...' : username;
     };
 
     const setAccountLabel = (value) => {
