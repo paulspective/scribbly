@@ -333,8 +333,12 @@ document.addEventListener('DOMContentLoaded', () => {
             setAccountLabel(result.data.email);
             localStorage.removeItem(GUEST_KEY);
             rememberLastSession(result.data.userId, result.data.email);
+
+            const before = JSON.stringify(manager.notes);
             await manager.setAuthContext(true, result.data.userId);
-            ui.render(searchInput.value);
+            if (JSON.stringify(manager.notes) !== before) {
+                ui.render(searchInput.value);
+            }
             return;
         }
 
