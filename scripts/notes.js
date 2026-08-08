@@ -15,7 +15,14 @@ export class NotesManager {
         this.serverHydrated = false;
         this.localMigrationDone = localStorage.getItem('scribbly_migration_done') === 'true';
 
-        this.loadLocalNotes();
+        const lastSession = JSON.parse(localStorage.getItem('scribbly_last_session') || 'null');
+
+        if (lastSession) {
+            this.notes = this.loadAuthedNotesCache(lastSession.userId) || [];
+        } else {
+            this.loadLocalNotes();
+        }
+
         this.cleanupTrash();
         this.pendingCache = JSON.parse(localStorage.getItem('scribbly_pending_cache') || '[]');
 
