@@ -78,6 +78,7 @@ export class NotesManager {
     save() {
         if (this.isAuthenticated) {
             this.savePendingCache();
+            this.saveAuthedNotesCache();
             return;
         }
 
@@ -91,6 +92,18 @@ export class NotesManager {
         } else {
             localStorage.removeItem('scribbly_pending_cache');
         }
+    }
+
+    saveAuthedNotesCache() {
+        if (!this.userId) {
+            return;
+        }
+        localStorage.setItem(`scribbly_notes_cache_${this.userId}`, JSON.stringify(this.notes));
+    }
+
+    loadAuthedNotesCache(userId) {
+        const cached = localStorage.getItem(`scribbly_notes_cache_${userId}`);
+        return cached ? JSON.parse(cached) : null;
     }
 
     async setAuthContext(isAuthenticated, userId = null) {
@@ -129,6 +142,12 @@ export class NotesManager {
                 if (result.status === 401) {
                     this.isAuthenticated = false;
                     this.serverHydrated = false;
+                    return;
+                }
+
+                const cached = this.loadAuthedNotesCache(this.userId);
+                if (cached) {
+                    this.notes = cached;
                 }
                 return;
             }
@@ -137,6 +156,7 @@ export class NotesManager {
             if (serverNotes.length > 0) {
                 this.notes = serverNotes;
                 this.serverHydrated = true;
+                this.save();
                 return;
             }
 
@@ -145,13 +165,19 @@ export class NotesManager {
                 await this.uploadLocalNotes(localSnapshot);
                 this.notes = localSnapshot;
                 this.serverHydrated = true;
+                this.save();
                 return;
             }
 
             this.notes = [];
             this.serverHydrated = true;
+            this.save();
         } catch (error) {
             console.error('Failed to sync notes with the server', error);
+            const cached = this.loadAuthedNotesCache(this.userId);
+            if (cached) {
+                this.notes = cached;
+            }
         }
     }
 
@@ -222,6 +248,7 @@ export class NotesManager {
             const serverNote = this.normalizeNote(result.data.note || result.data);
             this.notes = [serverNote, ...this.notes.filter((entry) => entry.id !== serverNote.id)];
             this.serverHydrated = true;
+            this.save();
             return serverNote;
         }
 
@@ -263,6 +290,7 @@ export class NotesManager {
             const serverNote = this.normalizeNote(result.data.note || result.data);
             this.notes = this.notes.map((entry) => entry.id === id ? serverNote : entry);
             this.serverHydrated = true;
+            this.save();
             return serverNote;
         }
 
@@ -284,7 +312,7 @@ export class NotesManager {
 
         if (this.isAuthenticated && note.pendingOp === 'create' && note.pendingSync) {
             this.notes = this.notes.filter((entry) => entry.id !== id);
-            this.savePendingCache();
+            this.save();
             return null;
         }
 
@@ -308,6 +336,7 @@ export class NotesManager {
             const serverNote = this.normalizeNote(result.data.note || result.data);
             this.notes = this.notes.map((entry) => entry.id === id ? serverNote : entry);
             this.serverHydrated = true;
+            this.save();
             return serverNote;
         }
 
@@ -372,7 +401,7 @@ export class NotesManager {
             }
 
             this.serverHydrated = true;
-            this.savePendingCache();
+            this.save();
         } finally {
             this.isFlushingSync = false;
         }
