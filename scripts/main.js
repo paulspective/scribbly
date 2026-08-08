@@ -24,6 +24,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const noteTitleInput = document.getElementById('note-title');
     const noteBodyInput = document.getElementById('note-body');
 
+    localStorage.setItem('scribbly_last_tab', localStorage.getItem('scribbly_last_tab') || 'today');
+    ui.tab = localStorage.getItem('scribbly_last_tab');
     ui.render();
 
     const themeColorMeta = document.getElementById('theme-color-meta');
@@ -139,11 +141,32 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    const tabIndicator = document.getElementById('tab-indicator');
+    const moveTabIndicator = (tabEl) => {
+        if (!tabEl) return;
+        tabIndicator.style.width = `${tabEl.offsetWidth}px`;
+        tabIndicator.style.transform = `translateX(${tabEl.offsetLeft}px)`;
+    };
+
+    const savedTabEl = document.querySelector(`.tab[data-tab="${ui.tab}"]`);
+    const currentActiveTab = document.querySelector('.tab.active');
+    if (currentActiveTab && currentActiveTab !== savedTabEl) {
+        currentActiveTab.classList.remove('active');
+    }
+    if (savedTabEl) {
+        savedTabEl.classList.add('active');
+    }
+    moveTabIndicator(savedTabEl);
+
+    window.addEventListener('resize', () => moveTabIndicator(document.querySelector(`[data-tab="${ui.tab}"]`)));
+
     document.querySelectorAll('.tab').forEach(tabEl => {
         tabEl.addEventListener('click', (e) => {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             e.target.classList.add('active');
+            moveTabIndicator(e.target);
             ui.tab = e.target.dataset.tab;
+            localStorage.setItem('scribbly_last_tab', ui.tab);
             ui.render(searchInput.value);
         });
     });
@@ -185,7 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const formatAccountLabel = (email) => {
         const username = String(email || '').split('@')[0] || 'Account';
-        return username.length > 15 ? username.slice(0, 15) + '...' : username;
+        return username.length > 10 ? username.slice(0, 10) + '...' : username;
     };
 
     const setAccountLabel = (value) => {
