@@ -1,6 +1,6 @@
 import { NotesManager } from './notes.js';
 import { UI } from './ui.js';
-import { signup, login, checkSession } from './auth.js';
+import { signup, login, checkSession, logout } from './auth.js';
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -42,6 +42,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             sidebar.classList.remove('open');
             overlay.classList.remove('active');
+            accountDropdown.classList.remove('open');
+            navAccountWrap.classList.remove('dropdown-open');
         }
     };
 
@@ -200,6 +202,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const authSwitchLink = document.getElementById('auth-switch-link');
     const authGuestLink = document.getElementById('auth-guest-link');
     const navAccountLabel = document.getElementById('nav-account-label');
+    const navAccountWrap = document.getElementById('nav-account-wrap');
+    const accountDropdown = document.getElementById('account-dropdown');
+    const btnLogout = document.getElementById('btn-logout');
     const togglePasswordBtn = document.getElementById('toggle-auth-password');
 
     const GUEST_KEY = 'scribbly_guest_dismissed';
@@ -215,6 +220,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const label = formatAccountLabel(value);
         navAccountLabel.textContent = label;
         localStorage.setItem(ACCOUNT_LABEL_KEY, label);
+        navAccountWrap.classList.add('authed');
+    };
+
+    const closeAccountDropdown = () => {
+        accountDropdown.classList.remove('open');
+        navAccountWrap.classList.remove('dropdown-open');
+    };
+
+    const toggleAccountDropdown = () => {
+        const willOpen = !accountDropdown.classList.contains('open');
+        accountDropdown.classList.toggle('open', willOpen);
+        navAccountWrap.classList.toggle('dropdown-open', willOpen);
     };
 
     const openAuthModal = () => {
@@ -269,13 +286,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('nav-account').addEventListener('click', (e) => {
         e.preventDefault();
-        toggleSidebar(false);
 
         if (manager.isAuthenticated) {
+            toggleAccountDropdown();
             return;
         }
 
+        toggleSidebar(false);
         openAuthModal();
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!navAccountWrap.contains(e.target)) {
+            closeAccountDropdown();
+        }
+    });
+
+    btnLogout.addEventListener('click', async (e) => {
+        e.preventDefault();
+        closeAccountDropdown();
+        toggleSidebar(false);
+        btnLogout.disabled = true;
+
+        const previousUserId = manager.userId;
+        await logout().catch(() => { });
+
+        localStorage.removeItem(LAST_SESSION_KEY);
+        localStorage.removeItem(ACCOUNT_LABEL_KEY);
+        localStorage.removeItem(GUEST_KEY);
+        if (previousUserId) {
+            localStorage.removeItem(`scribbly_notes_cache_${previousUserId}`);
+        }
+
+        navAccountWrap.classList.remove('authed');
+        navAccountLabel.textContent = 'Log in';
+
+        await manager.setAuthContext(false);
+        manager.notes = [];
+        localStorage.removeItem('scribbly_data');
+        ui.render(searchInput.value);
+
+        btnLogout.disabled = false;
     });
 
     authGuestLink.addEventListener('click', (e) => {
@@ -283,6 +334,7 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem(GUEST_KEY, 'true');
         navAccountLabel.textContent = 'Guest';
         localStorage.setItem(ACCOUNT_LABEL_KEY, 'Guest');
+        navAccountWrap.classList.remove('authed');
         closeAuthModal();
     });
 
