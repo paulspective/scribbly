@@ -33,10 +33,19 @@
         <a href="#" id="nav-trash">
           <iconify-icon icon="fluent:delete-24-regular" width="20"></iconify-icon> Recently Deleted
         </a>
-        <a href="#" id="nav-account">
-          <iconify-icon icon="fluent:person-24-regular" width="20"></iconify-icon> <span id="nav-account-label">Log
-            in</span>
-        </a>
+        <div class="nav-account-wrap" id="nav-account-wrap">
+          <a href="#" id="nav-account">
+            <iconify-icon icon="fluent:person-24-regular" width="20"></iconify-icon> <span id="nav-account-label">Log
+              in</span>
+            <iconify-icon id="nav-account-caret" class="account-caret" icon="fluent:chevron-down-24-regular"
+              width="14"></iconify-icon>
+          </a>
+          <div class="account-dropdown" id="account-dropdown">
+            <button type="button" id="btn-logout" class="dropdown-item">
+              <iconify-icon icon="fluent:sign-out-24-regular" width="20"></iconify-icon> Log out
+            </button>
+          </div>
+        </div>
       </nav>
     </aside>
 
