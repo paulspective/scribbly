@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'scribbly-v5';
+const CACHE_VERSION = 'scribbly-v6';
 const ICONIFY_CACHE = 'iconify-cache';
 
 const APP_SHELL = [
@@ -62,6 +62,10 @@ self.addEventListener('fetch', (event) => {
         }
       })
     );
+    return;
+  }
+
+  if (url.origin !== self.location.origin) {
     return;
   }
 
