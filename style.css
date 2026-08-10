@@ -134,9 +134,64 @@ html {
   color: var(--text-primary);
 }
 
-#nav-account {
+.nav-account-wrap {
   padding-top: 20px;
   border-top: 1px solid var(--border-color);
+}
+
+#nav-account {
+  padding: 0;
+  border: none;
+}
+
+.account-caret {
+  margin-left: auto;
+  color: var(--text-secondary);
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.nav-account-wrap:not(.authed) .account-caret {
+  display: none;
+}
+
+.nav-account-wrap.dropdown-open .account-caret {
+  transform: rotate(180deg);
+}
+
+.account-dropdown {
+  visibility: hidden;
+  opacity: 0;
+  flex-direction: column;
+  gap: 16px;
+  padding-left: 2px;
+  margin-top: 20px;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.account-dropdown.open {
+  visibility: visible;
+  opacity: 1;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  transition: color 0.2s ease;
+}
+
+.dropdown-item:hover {
+  color: var(--text-primary);
 }
 
 .main-content {
