@@ -23,5 +23,9 @@ export function login(email, password) {
 }
 
 export function checkSession() {
-  return request('/me');
+  return request('/me', { method: 'GET' });
+}
+
+export function logout() {
+  return request('/logout', { method: 'POST' });
 }
