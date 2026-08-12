@@ -160,18 +160,15 @@ html {
 }
 
 .account-dropdown {
-  visibility: hidden;
-  opacity: 0;
+  display: none;
   flex-direction: column;
   gap: 16px;
-  padding-left: 2px;
-  margin-top: 20px;
-  transition: opacity 0.2s ease, visibility 0.2s ease;
+  padding-left: 32px;
+  margin-top: 16px;
 }
 
 .account-dropdown.open {
-  visibility: visible;
-  opacity: 1;
+  display: flex;
 }
 
 .dropdown-item {
@@ -616,6 +613,14 @@ html {
   border-radius: 8px;
   font-weight: 700;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#save-note-btn:disabled {
+  cursor: default;
+  opacity: 0.85;
 }
 
 .auth-modal-content {
@@ -696,10 +701,96 @@ html {
   cursor: pointer;
   font-size: 15px;
   transition: transform 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 #auth-submit-btn:active {
   transform: scale(0.98);
+}
+
+#auth-submit-btn:disabled {
+  cursor: default;
+  opacity: 0.85;
+}
+
+.dropdown-item {
+  min-width: 92px;
+}
+
+.dropdown-item:disabled {
+  cursor: default;
+  color: var(--text-secondary);
+}
+
+.btn-spinner {
+  position: relative;
+  display: inline-block;
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+}
+
+.btn-spinner span {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 2px;
+  height: 6px;
+  border-radius: 1px;
+  background-color: currentColor;
+  animation: btn-spinner-fade 0.9s linear infinite;
+}
+
+.btn-spinner span:nth-child(1) {
+  transform: rotate(0deg) translateY(-6.5px);
+  animation-delay: -0.9000s;
+}
+
+.btn-spinner span:nth-child(2) {
+  transform: rotate(45deg) translateY(-6.5px);
+  animation-delay: -0.7875s;
+}
+
+.btn-spinner span:nth-child(3) {
+  transform: rotate(90deg) translateY(-6.5px);
+  animation-delay: -0.6750s;
+}
+
+.btn-spinner span:nth-child(4) {
+  transform: rotate(135deg) translateY(-6.5px);
+  animation-delay: -0.5625s;
+}
+
+.btn-spinner span:nth-child(5) {
+  transform: rotate(180deg) translateY(-6.5px);
+  animation-delay: -0.4500s;
+}
+
+.btn-spinner span:nth-child(6) {
+  transform: rotate(225deg) translateY(-6.5px);
+  animation-delay: -0.3375s;
+}
+
+.btn-spinner span:nth-child(7) {
+  transform: rotate(270deg) translateY(-6.5px);
+  animation-delay: -0.2250s;
+}
+
+.btn-spinner span:nth-child(8) {
+  transform: rotate(315deg) translateY(-6.5px);
+  animation-delay: -0.1125s;
+}
+
+@keyframes btn-spinner-fade {
+  0% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0.2;
+  }
 }
 
 .auth-switch-text,
