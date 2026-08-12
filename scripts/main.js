@@ -50,17 +50,21 @@ document.addEventListener('DOMContentLoaded', () => {
     hamburgerBtn.addEventListener('click', () => toggleSidebar(true));
     overlay.addEventListener('click', () => toggleSidebar(false));
 
+    let editingSnapshot = null;
+
     const openModal = (note = null) => {
         if (note) {
             ui.editingId = note.id;
             noteTitleInput.value = note.title;
             noteBodyInput.value = note.body;
             ui.color = note.color;
+            editingSnapshot = { title: note.title, body: note.body, color: note.color };
         } else {
             ui.editingId = null;
             noteTitleInput.value = '';
             noteBodyInput.value = '';
             ui.color = '#eada76';
+            editingSnapshot = null;
         }
 
         manager.setEditorPlaceholder(noteBodyInput);
@@ -92,17 +96,31 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    document.getElementById('save-note-btn').addEventListener('click', async () => {
+    const saveNoteBtn = document.getElementById('save-note-btn');
+    saveNoteBtn.addEventListener('click', async () => {
         const title = noteTitleInput.value;
         const body = noteBodyInput.value;
 
         if (title || body) {
             if (ui.editingId) {
+                const unchanged = editingSnapshot
+                    && title === editingSnapshot.title
+                    && body === editingSnapshot.body
+                    && ui.color === editingSnapshot.color;
+
+                if (unchanged) {
+                    modal.classList.remove('active');
+                    return;
+                }
+
+                setButtonLoading(saveNoteBtn, true);
                 await manager.updateNote(ui.editingId, title, body, ui.color);
             } else {
+                setButtonLoading(saveNoteBtn, true);
                 await manager.addNote(title, body, ui.color);
             }
 
+            setButtonLoading(saveNoteBtn, false);
             modal.classList.remove('active');
             ui.render(searchInput.value);
         }
@@ -211,6 +229,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const ACCOUNT_LABEL_KEY = 'scribbly_account_label';
     let authMode = 'login';
 
+    const SPINNER_MARKUP = '<span class="btn-spinner" aria-hidden="true">'
+        + '<span></span>'.repeat(8)
+        + '</span>';
+
+    const setButtonLoading = (btn, isLoading) => {
+        if (isLoading) {
+            btn.dataset.originalHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = SPINNER_MARKUP;
+        } else {
+            btn.disabled = false;
+            if (btn.dataset.originalHtml !== undefined) {
+                btn.innerHTML = btn.dataset.originalHtml;
+            }
+        }
+    };
+
     const formatAccountLabel = (email) => {
         const username = String(email || '').split('@')[0] || 'Account';
         return username.length > 10 ? username.slice(0, 10) + '...' : username;
@@ -304,9 +339,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     btnLogout.addEventListener('click', async (e) => {
         e.preventDefault();
-        closeAccountDropdown();
-        toggleSidebar(false);
-        btnLogout.disabled = true;
+        setButtonLoading(btnLogout, true);
 
         const previousUserId = manager.userId;
         await logout().catch(() => { });
@@ -326,7 +359,9 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.removeItem('scribbly_data');
         ui.render(searchInput.value);
 
-        btnLogout.disabled = false;
+        setButtonLoading(btnLogout, false);
+        closeAccountDropdown();
+        toggleSidebar(false);
     });
 
     authGuestLink.addEventListener('click', (e) => {
@@ -341,14 +376,14 @@ document.addEventListener('DOMContentLoaded', () => {
     authForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         authError.textContent = '';
-        authSubmitBtn.disabled = true;
+        setButtonLoading(authSubmitBtn, true);
 
         const email = authEmailInput.value.trim();
         const password = authPasswordInput.value;
         const action = authMode === 'login' ? login : signup;
         const result = await action(email, password);
 
-        authSubmitBtn.disabled = false;
+        setButtonLoading(authSubmitBtn, false);
 
         if (!result.ok) {
             authError.textContent = result.data.error || 'Something went wrong';
