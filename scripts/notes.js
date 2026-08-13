@@ -354,14 +354,10 @@ export class NotesManager {
     }
 
     markSyncFailure(note, op, result) {
-        if (result.status === 0) {
-            note.pendingSync = true;
-            note.pendingOp = note.pendingOp === 'create' ? 'create' : op;
-            note.syncError = false;
-        } else {
-            note.pendingSync = false;
-            note.syncError = true;
-        }
+        note.pendingOp = note.pendingOp === 'create' ? 'create' : op;
+        note.syncAttempts = (note.syncAttempts || 0) + 1;
+        note.pendingSync = note.syncAttempts < 5;
+        note.syncError = true;
     }
 
     async flushPendingSync() {
@@ -401,9 +397,8 @@ export class NotesManager {
                     const serverNote = this.normalizeNote(result.data.note || result.data);
                     this.notes = this.notes.map((entry) => entry.id === note.id ? serverNote : entry);
                 } else if (result.status !== 0) {
-                    this.notes = this.notes.map((entry) =>
-                        entry.id === note.id ? { ...entry, pendingSync: false, syncError: true } : entry
-                    );
+                    this.markSyncFailure(note, note.pendingOp, result);
+                    this.notes = this.notes.map((entry) => entry.id === note.id ? note : entry);
                 }
             }
 
