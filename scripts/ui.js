@@ -66,7 +66,7 @@ export class UI {
 
         this.updateMonthNav(notes.length);
 
-        if (smartAnimate && previousNoteIds) {
+        if (smartAnimate && previousNoteIds && notes.length > 0) {
             const newNoteIds = new Set(notes.map(n => n.id));
             const oldNoteIds = new Set(previousNoteIds);
 
@@ -124,7 +124,7 @@ export class UI {
                         this.grid.appendChild(newCard);
                     }
                 }
-            }, 360);
+            }, 400);
             return;
         }
 
