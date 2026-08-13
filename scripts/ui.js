@@ -60,11 +60,75 @@ export class UI {
             setTimeout(resolve, 400);
         });
     }
-    render(search = '') {
-        this.grid.innerHTML = '';
+    render(search = '', options = {}) {
+        const { animate = true, previousNoteIds = null, smartAnimate = false } = options;
         const notes = this.manager.getNotes(this.view === 'trash', search.toLowerCase(), this.tab, this.viewedMonth);
 
         this.updateMonthNav(notes.length);
+
+        if (smartAnimate && previousNoteIds) {
+            const newNoteIds = new Set(notes.map(n => n.id));
+            const oldNoteIds = new Set(previousNoteIds);
+
+            const cardsToRemove = [];
+            this.grid.querySelectorAll('.note-card').forEach(card => {
+                const id = card.dataset.id;
+                if (!newNoteIds.has(id)) {
+                    cardsToRemove.push(card);
+                }
+            });
+
+            cardsToRemove.forEach(card => {
+                card.classList.add('is-removing');
+            });
+
+            setTimeout(() => {
+                cardsToRemove.forEach(card => card.remove());
+
+                let animIndex = 0;
+                notes.forEach(note => {
+                    if (!oldNoteIds.has(note.id)) {
+                        const card = document.createElement('div');
+                        card.className = 'note-card is-entering';
+                        card.style.backgroundColor = note.color;
+                        card.style.animationDelay = `${Math.min(animIndex * 35, 210)}ms`;
+                        card.dataset.id = note.id;
+
+                        const actionIcon = this.view === 'trash' ? 'fluent:arrow-undo-24-regular' : 'fluent:delete-24-regular';
+                        card.innerHTML = `
+                            <div class="note-date">${note.date}</div>
+                            <div class="note-title" title="${escHtml(note.title)}">${escHtml(note.title)}</div>
+                            <div class="note-body">${escHtml(note.body)}</div>
+                            <div class="note-footer">
+                                <iconify-icon icon="fluent:clock-24-regular"></iconify-icon> ${note.time}
+                            </div>
+                            <button class="note-actions action-btn" data-id="${note.id}">
+                                <iconify-icon icon="${actionIcon}"></iconify-icon>
+                            </button>
+                        `;
+                        this.grid.appendChild(card);
+                        animIndex++;
+                    }
+                });
+
+                if (this.view === 'active') {
+                    let newCard = this.grid.querySelector('#trigger-new-note');
+                    if (!newCard) {
+                        newCard = document.createElement('div');
+                        newCard.className = 'new-note-card';
+                        newCard.id = 'trigger-new-note';
+                        newCard.innerHTML = `
+                            <iconify-icon icon="fluent:document-add-24-regular"></iconify-icon>
+                            <span>New Note</span>
+                        `;
+                        this.grid.appendChild(newCard);
+                    }
+                }
+            }, 360);
+            return;
+        }
+
+        this.grid.innerHTML = '';
 
         if (notes.length === 0 && this.view === 'trash') {
             const emptyMsg = document.createElement('div');
@@ -83,9 +147,11 @@ export class UI {
 
         notes.forEach((note, index) => {
             const card = document.createElement('div');
-            card.className = 'note-card';
+            card.className = animate ? 'note-card is-entering' : 'note-card';
             card.style.backgroundColor = note.color;
-            card.style.animationDelay = `${Math.min(index * 35, 210)}ms`;
+            if (animate) {
+                card.style.animationDelay = `${Math.min(index * 35, 210)}ms`;
+            }
             card.dataset.id = note.id;
 
             const actionIcon = this.view === 'trash' ? 'fluent:arrow-undo-24-regular' : 'fluent:delete-24-regular';
