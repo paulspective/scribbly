@@ -171,7 +171,7 @@ html {
 
 .account-dropdown.open {
   visibility: visible;
-  opacity; 1;
+  opacity: 1;
 }
 
 .dropdown-item {
