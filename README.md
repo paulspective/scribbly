@@ -6,11 +6,11 @@ A quick, clean note-taking app. Write, tag with a color, done.
   <img src="./assets/screenshots/desktop.png" alt="Scribbly desktop view" width="700">
 </p>
 <p align="center">
-  <img src="./assets/screenshots/mobile-1.jpg" alt="Scribbly mobile view" width="265">
-  <img src="./assets/screenshots/mobile-2.jpg" alt="Scribbly mobile view" width="265">
+  <img src="./assets/screenshots/mobile-1.jpg" alt="Scribbly mobile view" width="220">
+  <img src="./assets/screenshots/mobile-2.jpg" alt="Scribbly mobile view" width="220">
 </p>
 
-
+**Live app:** [scribbly-app.onrender.com](https://scribbly-app.onrender.com)
 
 ## Features
 
