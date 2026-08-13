@@ -16,6 +16,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const manager = new NotesManager();
     const ui = new UI(manager);
 
+    const debounce = (fn, delay) => {
+        let timeoutId;
+        return (...args) => {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => fn(...args), delay);
+        };
+    };
+
     const modal = document.getElementById('note-modal');
     const searchInput = document.getElementById('search-input');
     const sidebar = document.getElementById('sidebar');
@@ -128,14 +136,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('month-prev').addEventListener('click', (e) => {
         if (e.target.classList.contains('hidden')) return;
+
+        const previousNoteIds = Array.from(ui.grid.querySelectorAll('.note-card'))
+            .map(card => card.dataset.id);
+
         ui.shiftMonth(-1);
-        ui.render(searchInput.value);
+        ui.render(searchInput.value, { smartAnimate: true, previousNoteIds });
     });
 
     document.getElementById('month-next').addEventListener('click', (e) => {
         if (e.target.classList.contains('hidden')) return;
+
+        const previousNoteIds = Array.from(ui.grid.querySelectorAll('.note-card'))
+            .map(card => card.dataset.id);
+
         ui.shiftMonth(1);
-        ui.render(searchInput.value);
+        ui.render(searchInput.value, { smartAnimate: true, previousNoteIds });
     });
 
     document.getElementById('notes-grid').addEventListener('click', async (e) => {
@@ -164,8 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const tabIndicator = document.getElementById('tab-indicator');
     const moveTabIndicator = (tabEl) => {
         if (!tabEl) return;
-        tabIndicator.style.width = `${tabEl.offsetWidth}px`;
-        tabIndicator.style.transform = `translateX(${tabEl.offsetLeft}px)`;
+        tabIndicator.style.transform = `translateX(${tabEl.offsetLeft}px) scaleX(${tabEl.offsetWidth})`;
     };
 
     const savedTabEl = document.querySelector(`.tab[data-tab="${ui.tab}"]`);
@@ -185,9 +200,16 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             e.target.classList.add('active');
             moveTabIndicator(e.target);
+
+            // Capture current note IDs before switching tabs
+            const previousNoteIds = Array.from(ui.grid.querySelectorAll('.note-card'))
+                .map(card => card.dataset.id);
+
             ui.tab = e.target.dataset.tab;
             localStorage.setItem('scribbly_last_tab', ui.tab);
-            ui.render(searchInput.value);
+
+            // Use smart animation: only animate in/out cards that changed
+            ui.render(searchInput.value, { smartAnimate: true, previousNoteIds });
         });
     });
 
@@ -196,7 +218,12 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('nav-all').classList.add('active');
         document.getElementById('nav-trash').classList.remove('active');
         toggleSidebar(false);
-        ui.render(searchInput.value);
+
+        ui.grid.classList.add('fade-out');
+        setTimeout(() => {
+            ui.render(searchInput.value, { animate: false });
+            ui.grid.classList.remove('fade-out');
+        }, 200);
     });
 
     document.getElementById('nav-trash').addEventListener('click', (e) => {
@@ -204,10 +231,17 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('nav-trash').classList.add('active');
         document.getElementById('nav-all').classList.remove('active');
         toggleSidebar(false);
-        ui.render(searchInput.value);
+
+        ui.grid.classList.add('fade-out');
+        setTimeout(() => {
+            ui.render(searchInput.value, { animate: false });
+            ui.grid.classList.remove('fade-out');
+        }, 200);
     });
 
-    searchInput.addEventListener('input', (e) => ui.render(e.target.value));
+    searchInput.addEventListener('input', debounce((e) => {
+        ui.render(e.target.value, { animate: false });
+    }, 150));
 
     // --- Auth ---
     const authModal = document.getElementById('auth-modal');
