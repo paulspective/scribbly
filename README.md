@@ -1,3 +1,5 @@
+## Scribbly — Quick, clean note taking.
+
 <p align="center">
   <img src="./assets/screenshots/desktop.png" alt="Scribbly desktop view" width="700">
 </p>
