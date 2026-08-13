@@ -160,15 +160,18 @@ html {
 }
 
 .account-dropdown {
-  display: none;
+  visibility: hidden;
+  opacity: 0;
   flex-direction: column;
   gap: 16px;
   padding-left: 32px;
   margin-top: 16px;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
 }
 
 .account-dropdown.open {
-  display: flex;
+  visibility: visible;
+  opacity: 1;
 }
 
 .dropdown-item {
