@@ -60,13 +60,32 @@ export class UI {
             setTimeout(resolve, 400);
         });
     }
+    placeNewNoteTrigger() {
+        const existing = this.grid.querySelector('#trigger-new-note');
+        if (this.view !== 'active') {
+            if (existing) existing.remove();
+            return;
+        }
+        if (existing) {
+            this.grid.appendChild(existing);
+            return;
+        }
+        const newCard = document.createElement('div');
+        newCard.className = 'new-note-card';
+        newCard.id = 'trigger-new-note';
+        newCard.innerHTML = `
+            <iconify-icon icon="fluent:document-add-24-regular"></iconify-icon>
+            <span>New Note</span>
+        `;
+        this.grid.appendChild(newCard);
+    }
     render(search = '', options = {}) {
         const { animate = true, previousNoteIds = null, smartAnimate = false } = options;
         const notes = this.manager.getNotes(this.view === 'trash', search.toLowerCase(), this.tab, this.viewedMonth);
 
         this.updateMonthNav(notes.length);
 
-        if (smartAnimate && previousNoteIds && notes.length > 0) {
+        if (smartAnimate && previousNoteIds && previousNoteIds.length > 0) {
             const newNoteIds = new Set(notes.map(n => n.id));
             const oldNoteIds = new Set(previousNoteIds);
 
@@ -84,6 +103,17 @@ export class UI {
 
             setTimeout(() => {
                 cardsToRemove.forEach(card => card.remove());
+
+                if (notes.length === 0) {
+                    const emptyMsg = document.createElement('div');
+                    emptyMsg.className = 'empty-state';
+                    emptyMsg.textContent = this.view === 'trash'
+                        ? 'No stray scribbles here. Scribbles vanish after 7 days in the trash.'
+                        : 'No scribbles found for this time period.';
+                    this.grid.appendChild(emptyMsg);
+                    this.placeNewNoteTrigger();
+                    return;
+                }
 
                 let animIndex = 0;
                 notes.forEach(note => {
@@ -112,17 +142,7 @@ export class UI {
                 });
 
                 if (this.view === 'active') {
-                    let newCard = this.grid.querySelector('#trigger-new-note');
-                    if (!newCard) {
-                        newCard = document.createElement('div');
-                        newCard.className = 'new-note-card';
-                        newCard.id = 'trigger-new-note';
-                        newCard.innerHTML = `
-                            <iconify-icon icon="fluent:document-add-24-regular"></iconify-icon>
-                            <span>New Note</span>
-                        `;
-                        this.grid.appendChild(newCard);
-                    }
+                    this.placeNewNoteTrigger();
                 }
             }, 400);
             return;
@@ -171,14 +191,7 @@ export class UI {
         });
 
         if (this.view === 'active') {
-            const newCard = document.createElement('div');
-            newCard.className = 'new-note-card';
-            newCard.id = 'trigger-new-note';
-            newCard.innerHTML = `
-                <iconify-icon icon="fluent:document-add-24-regular"></iconify-icon>
-                <span>New Note</span>
-            `;
-            this.grid.appendChild(newCard);
+            this.placeNewNoteTrigger();
         }
     }
 }
