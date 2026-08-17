@@ -70,7 +70,7 @@ html {
 .app-container {
   display: flex;
   width: 1200px;
-  height: 800px;
+  height: min(800px, calc(100vh - 60px));
   background: var(--bg-container);
   border-radius: 12px;
   box-shadow: 0 10px 40px var(--shadow);
@@ -162,16 +162,18 @@ html {
 .account-dropdown {
   visibility: hidden;
   opacity: 0;
+  filter: blur(4px);
   flex-direction: column;
   gap: 16px;
   padding-left: 32px;
   margin-top: 16px;
-  transition: opacity 0.2s ease, visibility 0.2s ease;
+  transition: opacity 0.2s ease, filter 0.2s ease, visibility 0.2s ease;
 }
 
 .account-dropdown.open {
   visibility: visible;
   opacity: 1;
+  filter: blur(0);
 }
 
 .dropdown-item {
@@ -198,6 +200,29 @@ html {
   flex: 1;
   padding: 50px;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
+}
+
+.main-content::-webkit-scrollbar,
+.modal-content textarea::-webkit-scrollbar {
+  width: 8px;
+}
+
+.main-content::-webkit-scrollbar-track,
+.modal-content textarea::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.main-content::-webkit-scrollbar-thumb,
+.modal-content textarea::-webkit-scrollbar-thumb {
+  background-color: var(--border-color);
+  border-radius: 8px;
+}
+
+.main-content::-webkit-scrollbar-thumb:hover,
+.modal-content textarea::-webkit-scrollbar-thumb:hover {
+  background-color: var(--text-secondary);
 }
 
 .top-header {
@@ -598,6 +623,8 @@ html {
   line-height: 1.5;
   background: transparent;
   color: var(--text-primary);
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
 }
 
 .color-palette {
