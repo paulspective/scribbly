@@ -18,6 +18,7 @@
   --card-action-bg: #111111;
   --card-action-color: #ffffff;
   --shadow: rgba(0, 0, 0, 0.05);
+  --overlay: rgba(0, 0, 0, 0.23);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -33,6 +34,7 @@
     --card-action-bg: #f1f1f1;
     --card-action-color: #111111;
     --shadow: rgba(0, 0, 0, 0.3);
+    --overlay: rgba(0, 0, 0, 0.6);
   }
 }
 
@@ -557,7 +559,7 @@ html {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.6);
+  background: var(--overlay);
   backdrop-filter: blur(4px);
   justify-content: center;
   align-items: center;
@@ -584,9 +586,11 @@ html {
   flex-direction: column;
   gap: 20px;
   position: relative;
-  transform: translateY(100%) scale(0.9);
+  transform: scale(0.95) translateY(10px);
   opacity: 0;
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), scale 0.3s ease, opacity 0.3s ease;
+  transform: translateY(12px) scale(.97);
+  transition: transform .35s cubic-bezier(.2, .8, .2, 1), opacity .2s ease;
+  will-change: transform, opacity;
 }
 
 .modal.active .modal-content {
@@ -909,7 +913,7 @@ html {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: var(--overlay);
     z-index: 150;
     backdrop-filter: blur(4px);
     transition: opacity 0.3s ease, visibility 0.3s ease;
