@@ -60,13 +60,61 @@ export class UI {
             setTimeout(resolve, 400);
         });
     }
+    createCardElement(note, { animate = false, delay = 0 } = {}) {
+        const card = document.createElement('div');
+        card.className = animate ? 'note-card is-entering' : 'note-card';
+        card.style.backgroundColor = note.color;
+        if (animate) {
+            card.style.animationDelay = `${delay}ms`;
+        }
+        card.dataset.id = note.id;
+
+        const actionIcon = this.view === 'trash' ? 'fluent:arrow-undo-24-regular' : 'fluent:delete-24-regular';
+        const syncBadge = note.syncError
+            ? `<iconify-icon class="sync-error-icon" icon="fluent:cloud-off-24-filled" title="Couldn't sync to your account yet. We'll keep retrying."></iconify-icon>`
+            : '';
+
+        card.innerHTML = `
+            <div class="note-date">${note.date}</div>
+            <div class="note-title" title="${escHtml(note.title)}">${escHtml(note.title)}</div>
+            <div class="note-body">${escHtml(note.body)}</div>
+            <div class="note-footer">
+                ${syncBadge}
+                <iconify-icon icon="fluent:clock-24-regular"></iconify-icon> ${note.time}
+            </div>
+            <button class="note-actions action-btn" data-id="${note.id}">
+                <iconify-icon icon="${actionIcon}"></iconify-icon>
+            </button>
+        `;
+        return card;
+    }
+
+    placeNewNoteTrigger() {
+        const existing = this.grid.querySelector('#trigger-new-note');
+        if (this.view !== 'active') {
+            if (existing) existing.remove();
+            return;
+        }
+        if (existing) {
+            this.grid.appendChild(existing);
+            return;
+        }
+        const newCard = document.createElement('div');
+        newCard.className = 'new-note-card';
+        newCard.id = 'trigger-new-note';
+        newCard.innerHTML = `
+            <iconify-icon icon="fluent:document-add-24-regular"></iconify-icon>
+            <span>New Note</span>
+        `;
+        this.grid.appendChild(newCard);
+    }
     render(search = '', options = {}) {
         const { animate = true, previousNoteIds = null, smartAnimate = false } = options;
         const notes = this.manager.getNotes(this.view === 'trash', search.toLowerCase(), this.tab, this.viewedMonth);
 
         this.updateMonthNav(notes.length);
 
-        if (smartAnimate && previousNoteIds) {
+        if (smartAnimate && previousNoteIds && previousNoteIds.length > 0) {
             const newNoteIds = new Set(notes.map(n => n.id));
             const oldNoteIds = new Set(previousNoteIds);
 
@@ -85,46 +133,33 @@ export class UI {
             setTimeout(() => {
                 cardsToRemove.forEach(card => card.remove());
 
+                if (notes.length === 0) {
+                    const emptyMsg = document.createElement('div');
+                    emptyMsg.className = 'empty-state';
+                    emptyMsg.textContent = this.view === 'trash'
+                        ? 'No stray scribbles here. Scribbles vanish after 7 days in the trash.'
+                        : 'No scribbles found for this time period.';
+                    this.grid.appendChild(emptyMsg);
+                    this.placeNewNoteTrigger();
+                    return;
+                }
+
                 let animIndex = 0;
                 notes.forEach(note => {
                     if (!oldNoteIds.has(note.id)) {
-                        const card = document.createElement('div');
-                        card.className = 'note-card is-entering';
-                        card.style.backgroundColor = note.color;
-                        card.style.animationDelay = `${Math.min(animIndex * 35, 210)}ms`;
-                        card.dataset.id = note.id;
-
-                        const actionIcon = this.view === 'trash' ? 'fluent:arrow-undo-24-regular' : 'fluent:delete-24-regular';
-                        card.innerHTML = `
-                            <div class="note-date">${note.date}</div>
-                            <div class="note-title" title="${escHtml(note.title)}">${escHtml(note.title)}</div>
-                            <div class="note-body">${escHtml(note.body)}</div>
-                            <div class="note-footer">
-                                <iconify-icon icon="fluent:clock-24-regular"></iconify-icon> ${note.time}
-                            </div>
-                            <button class="note-actions action-btn" data-id="${note.id}">
-                                <iconify-icon icon="${actionIcon}"></iconify-icon>
-                            </button>
-                        `;
+                        const card = this.createCardElement(note, {
+                            animate: true,
+                            delay: Math.min(animIndex * 35, 210),
+                        });
                         this.grid.appendChild(card);
                         animIndex++;
                     }
                 });
 
                 if (this.view === 'active') {
-                    let newCard = this.grid.querySelector('#trigger-new-note');
-                    if (!newCard) {
-                        newCard = document.createElement('div');
-                        newCard.className = 'new-note-card';
-                        newCard.id = 'trigger-new-note';
-                        newCard.innerHTML = `
-                            <iconify-icon icon="fluent:document-add-24-regular"></iconify-icon>
-                            <span>New Note</span>
-                        `;
-                        this.grid.appendChild(newCard);
-                    }
+                    this.placeNewNoteTrigger();
                 }
-            }, 360);
+            }, 400);
             return;
         }
 
@@ -146,39 +181,15 @@ export class UI {
         }
 
         notes.forEach((note, index) => {
-            const card = document.createElement('div');
-            card.className = animate ? 'note-card is-entering' : 'note-card';
-            card.style.backgroundColor = note.color;
-            if (animate) {
-                card.style.animationDelay = `${Math.min(index * 35, 210)}ms`;
-            }
-            card.dataset.id = note.id;
-
-            const actionIcon = this.view === 'trash' ? 'fluent:arrow-undo-24-regular' : 'fluent:delete-24-regular';
-
-            card.innerHTML = `
-                <div class="note-date">${note.date}</div>
-                <div class="note-title" title="${escHtml(note.title)}">${escHtml(note.title)}</div>
-                <div class="note-body">${escHtml(note.body)}</div>
-                <div class="note-footer">
-                    <iconify-icon icon="fluent:clock-24-regular"></iconify-icon> ${note.time}
-                </div>
-                <button class="note-actions action-btn" data-id="${note.id}">
-                    <iconify-icon icon="${actionIcon}"></iconify-icon>
-                </button>
-            `;
+            const card = this.createCardElement(note, {
+                animate,
+                delay: animate ? Math.min(index * 35, 210) : 0,
+            });
             this.grid.appendChild(card);
         });
 
         if (this.view === 'active') {
-            const newCard = document.createElement('div');
-            newCard.className = 'new-note-card';
-            newCard.id = 'trigger-new-note';
-            newCard.innerHTML = `
-                <iconify-icon icon="fluent:document-add-24-regular"></iconify-icon>
-                <span>New Note</span>
-            `;
-            this.grid.appendChild(newCard);
+            this.placeNewNoteTrigger();
         }
     }
-}
+                    }
