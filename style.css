@@ -618,7 +618,9 @@ html {
 }
 
 .modal-content textarea {
-  height: 150px;
+  min-height: 150px;
+  max-height: 300px;
+  overflow-y: hidden;
   border: none;
   outline: none;
   font-size: 14px;

@@ -32,6 +32,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const noteTitleInput = document.getElementById('note-title');
     const noteBodyInput = document.getElementById('note-body');
 
+    const resizeTextarea = () => {
+        noteBodyInput.style.height = 'auto';
+
+        const maxHeight = 400;
+        const newHeight = Math.min(noteBodyInput.scrollHeight, maxHeight);
+
+        noteBodyInput.style.height = `${newHeight}px`;
+        noteBodyInput.style.overflowY = noteBodyInput.scrollHeight > maxHeight ? 'auto' : 'hidden';
+    };
+
+    noteBodyInput.addEventListener('input', resizeTextarea);
+
     localStorage.setItem('scribbly_last_tab', localStorage.getItem('scribbly_last_tab') || 'today');
     ui.tab = localStorage.getItem('scribbly_last_tab');
     ui.render();
@@ -76,6 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         manager.setEditorPlaceholder(noteBodyInput);
+        resizeTextarea();
 
         document.querySelectorAll('.dot').forEach((dot) => {
             dot.classList.toggle('selected', dot.dataset.color === ui.color);
