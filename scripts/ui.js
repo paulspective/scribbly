@@ -68,7 +68,10 @@ export class UI {
         if (!card) return Promise.resolve();
         return new Promise(resolve => {
             card.classList.remove('is-entering');
-            card.classList.add('is-removing');
+
+            requestAnimationFrame(() => {
+                card.classList.add('is-removing');
+            });
             setTimeout(resolve, 400);
         });
     }
