@@ -989,7 +989,7 @@ html {
 }
 
 @media (max-width: 480px) {
-  .modal {
+  #note-modal {
     align-items: flex-end;
   }
 
