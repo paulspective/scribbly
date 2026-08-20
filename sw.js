@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'scribbly-v8';
+const CACHE_VERSION = 'scribbly-v10';
 const ICONIFY_CACHE = 'iconify-cache';
 
 const APP_SHELL = [
@@ -14,11 +14,11 @@ const APP_SHELL = [
   './assets/fonts/DancingScript-VariableFont_wght.ttf',
   './assets/fonts/Manrope-VariableFont_wght.ttf',
   './assets/favicons/favicon.ico',
-  './assets/favicons/favicon-16x16.png',
-  './assets/favicons/favicon-32x32.png',
+  './assets/favicons/favicon.svg',
+  './assets/favicons/favicon-96x96.png',
   './assets/favicons/apple-touch-icon.png',
-  './assets/favicons/android-chrome-192x192.png',
-  './assets/favicons/android-chrome-512x512.png',
+  './assets/favicons/icon-192x192.png',
+  './assets/favicons/icon-512x512.png',
 ];
 
 self.addEventListener('install', (event) => {
