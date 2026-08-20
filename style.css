@@ -71,10 +71,10 @@ html {
 
 .app-container {
   display: flex;
-  width: 1200px;
+  width: 1500px;
   height: min(800px, calc(100vh - 60px));
   background: var(--bg-container);
-  border-radius: 12px;
+  border-radius: 24px;
   box-shadow: 0 10px 40px var(--shadow);
   overflow: hidden;
   position: relative;
@@ -367,7 +367,7 @@ html {
 }
 
 .note-card {
-  border-radius: 16px;
+  border-radius: 24px;
   padding: 25px;
   height: 280px;
   display: flex;
@@ -485,7 +485,7 @@ html {
 .new-note-card {
   border: 2px dashed var(--text-secondary);
   animation: pulse 3s infinite;
-  border-radius: 16px;
+  border-radius: 24px;
   height: 280px;
   display: flex;
   flex-direction: column;
@@ -581,7 +581,7 @@ html {
   background: var(--bg-modal);
   color: var(--text-primary);
   padding: 30px;
-  border-radius: 16px;
+  border-radius: 24px;
   width: 450px;
   display: flex;
   flex-direction: column;
@@ -919,6 +919,7 @@ html {
     height: 100%;
     width: 260px;
     border: none;
+    border-radius: 0 24px 24px 0;
     z-index: 200;
     transform: translateX(-100%);
     transition: transform 0.3s ease
