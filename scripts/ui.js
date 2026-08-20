@@ -20,6 +20,17 @@ export class UI {
     monthKey(m, y) {
         return y * 12 + m;
     }
+    showToast(message, duration = 3000) {
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.classList.add('show'), 50);
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, duration);
+    }
     shiftMonth(delta) {
         let m = this.viewedMonth.month + delta;
         let y = this.viewedMonth.year;
@@ -56,6 +67,7 @@ export class UI {
         const card = this.grid.querySelector(`.note-card[data-id="${id}"]`);
         if (!card) return Promise.resolve();
         return new Promise(resolve => {
+            card.classList.remove('is-entering');
             card.classList.add('is-removing');
             setTimeout(resolve, 400);
         });
@@ -127,7 +139,13 @@ export class UI {
             });
 
             cardsToRemove.forEach(card => {
-                card.classList.add('is-removing');
+                card.classList.remove('is-entering');
+            });
+
+            requestAnimationFrame(() => {
+                cardsToRemove.forEach(card => {
+                    card.classList.add('is-removing');
+                });
             });
 
             setTimeout(() => {
@@ -192,4 +210,4 @@ export class UI {
             this.placeNewNoteTrigger();
         }
     }
-                    }
+}

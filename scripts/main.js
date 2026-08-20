@@ -180,6 +180,8 @@ document.addEventListener('DOMContentLoaded', () => {
             await ui.animateRemoval(id);
             await manager.deleteNote(id);
             ui.render(searchInput.value);
+
+            ui.showToast(ui.view === 'trash' ? 'Note restored' : 'Note moved to trash');
             return;
         }
 
@@ -409,6 +411,8 @@ document.addEventListener('DOMContentLoaded', () => {
         setButtonLoading(btnLogout, false);
         closeAccountDropdown();
         toggleSidebar(false);
+
+        ui.showToast('Logged out successfully');
     });
 
     authGuestLink.addEventListener('click', (e) => {
@@ -454,6 +458,8 @@ document.addEventListener('DOMContentLoaded', () => {
         await manager.setAuthContext(true, loggedInUserId);
         ui.render(searchInput.value);
         closeAuthModal();
+
+        ui.showToast(authMode === 'signup' ? 'Account created' : 'Welcome back');
     });
 
     const LAST_SESSION_KEY = 'scribbly_last_session';

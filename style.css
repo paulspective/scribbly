@@ -679,9 +679,11 @@ html {
   gap: 25px;
   border-bottom: 1px solid var(--border-color);
   padding-bottom: 15px;
+  position: relative;
 }
 
 .auth-tab {
+  position: relative;
   font-size: 16px;
   font-weight: 700;
   color: var(--text-secondary);
@@ -857,6 +859,26 @@ html {
 
 .auth-guest-text {
   margin-top: -10px;
+}
+
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--bg-modal);
+  color: var(--text-primary);
+  box-shadow: 0 10px 25px var(--shadow);
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  pointer-events: none;
+  transition: transform 0.3s ease;
+  z-index: 999;
+}
+
+.toast.show {
+  transform: translateX(-50%) translateY(0);
 }
 
 @media (max-width: 768px) {
