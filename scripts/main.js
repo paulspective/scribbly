@@ -412,7 +412,7 @@ document.addEventListener('DOMContentLoaded', () => {
         closeAccountDropdown();
         toggleSidebar(false);
 
-        ui.showToast('Logged out successfully');
+        ui.showToast('Come back soon');
     });
 
     authGuestLink.addEventListener('click', (e) => {
