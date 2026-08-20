@@ -987,3 +987,21 @@ html {
     display: flex;
   }
 }
+
+@media (max-width: 480px) {
+  .modal {
+    align-items: flex-end;
+  }
+
+  #note-modal .modal-content {
+    width: 100%;
+    max-height: min(620px, 92vh);
+    padding: 28px 20px calc(20px + env(safe-area-inset-bottom));
+    border-radius: 28px 28px 0 0;
+    transform: translateY(100%);
+  }
+
+  #note-modal.active .modal-content {
+    transform: translateY(0);
+  }
+}
