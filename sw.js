@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'scribbly-v10';
+const CACHE_VERSION = 'scribbly-v11';
 const ICONIFY_CACHE = 'iconify-cache';
 
 const APP_SHELL = [
@@ -17,8 +17,8 @@ const APP_SHELL = [
   './assets/favicons/favicon.svg',
   './assets/favicons/favicon-96x96.png',
   './assets/favicons/apple-touch-icon.png',
-  './assets/favicons/icon-192x192.png',
-  './assets/favicons/icon-512x512.png',
+  './assets/favicons/icon-192.png',
+  './assets/favicons/icon-512.png',
 ];
 
 self.addEventListener('install', (event) => {
