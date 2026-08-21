@@ -32,6 +32,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const noteTitleInput = document.getElementById('note-title');
     const noteBodyInput = document.getElementById('note-body');
 
+    const haptic = (pattern = 8) => {
+        if ('vibrate' in navigator) {
+            navigator.vibrate(pattern);
+        }
+    };
+
     const resizeTextarea = () => {
         noteBodyInput.style.height = 'auto';
 
@@ -67,7 +73,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    hamburgerBtn.addEventListener('click', () => toggleSidebar(true));
+    hamburgerBtn.addEventListener('click', () => {
+        haptic(5);
+        toggleSidebar(true);
+    });
     overlay.addEventListener('click', () => toggleSidebar(false));
 
     let editingSnapshot = null;
@@ -98,16 +107,21 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     document.getElementById('btn-add-note').addEventListener('click', () => {
+        haptic(8);
         openModal();
         toggleSidebar(false);
     });
 
     document.getElementById('fab-add-note').addEventListener('click', () => {
+        haptic(8);
         openModal();
         toggleSidebar(false);
     });
 
-    document.getElementById('close-modal').addEventListener('click', () => modal.classList.remove('active'));
+    document.getElementById('close-modal').addEventListener('click', () => {
+        haptic(3);
+        modal.classList.remove('active');
+    });
 
     document.querySelectorAll('.dot').forEach(dot => {
         dot.addEventListener('click', (e) => {
@@ -130,6 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     && ui.color === editingSnapshot.color;
 
                 if (unchanged) {
+                    haptic(3);
                     modal.classList.remove('active');
                     return;
                 }
@@ -141,6 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 await manager.addNote(title, body, ui.color);
             }
 
+            haptic(12);
             setButtonLoading(saveNoteBtn, false);
             modal.classList.remove('active');
             ui.render(searchInput.value);
@@ -179,6 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const id = btn.dataset.id;
             await ui.animateRemoval(id);
             await manager.deleteNote(id);
+            haptic([18, 24, 18]);
             ui.render(searchInput.value);
 
             ui.showToast(ui.view === 'trash' ? 'Note restored' : 'Note moved to trash');
