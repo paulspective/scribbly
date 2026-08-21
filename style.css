@@ -168,14 +168,16 @@ html {
   flex-direction: column;
   gap: 16px;
   padding-left: 32px;
+  pointer-events: none;
   margin-top: 16px;
-  transition: opacity 0.2s ease, filter 0.2s ease, visibility 0.2s ease;
+  transition: opacity 0.26s ease, filter 0.26s ease, visibility 0.24s ease;
 }
 
 .account-dropdown.open {
   visibility: visible;
   opacity: 1;
   filter: blur(0);
+  pointer-events: auto;
 }
 
 .dropdown-item {
@@ -557,15 +559,15 @@ html {
   position: fixed;
   inset: 0;
   background: var(--overlay);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   justify-content: center;
   align-items: center;
   z-index: 100;
   visibility: hidden;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.2s ease, visibility 0.2s ease;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
   will-change: opacity, visibility;
   transform: translateZ(0);
   contain: strict;
@@ -934,14 +936,15 @@ html {
     opacity: 0;
     pointer-events: none;
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    inset: 0;
     background: var(--overlay);
     z-index: 150;
-    backdrop-filter: blur(4px);
-    transition: opacity 0.3s ease, visibility 0.3s ease;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+    will-change: opacity, visibility;
+    transform: translateZ(0);
+    contain: strict;
   }
 
   .sidebar-overlay.active {
