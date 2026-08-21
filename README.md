@@ -5,6 +5,7 @@
 [![Live app](https://img.shields.io/badge/live_app-scribbly--app.onrender.com-2f6f61?style=flat-square)](https://scribbly-app.onrender.com)
 [![Vanilla JavaScript](https://img.shields.io/badge/JavaScript-vanilla-f7df1e?style=flat-square&logo=javascript&logoColor=111111)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 [![PWA](https://img.shields.io/badge/PWA-installable-5a4fcf?style=flat-square)](https://web.dev/progressive-web-apps/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
 Scribbly is a focused note-taking app with fast local editing, searchable notes, color tags, and optional account-based sync. It works as a responsive web app and an installable Progressive Web App.
 
