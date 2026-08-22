@@ -325,32 +325,31 @@ export class NotesManager {
 
         const nextDeleted = !note.deleted;
         const nextDeletedAt = nextDeleted ? Date.now() : null;
+        const updatedNote = { ...note, deleted: nextDeleted, deletedAt: nextDeletedAt };
+
+        this.notes = this.notes.map((entry) => entry.id === id ? updatedNote : entry);
+        this.save();
 
         if (this.isAuthenticated) {
-            const result = await request(`/notes/${id}`, {
+            request(`/notes/${id}`, {
                 method: 'PATCH',
                 body: JSON.stringify({ deleted: nextDeleted, deletedAt: nextDeletedAt }),
-            });
+            }).then((result) => {
+                if (!result.ok) {
+                    this.markSyncFailure(updatedNote, 'delete', result);
+                    this.notes = this.notes.map((entry) => entry.id === id ? updatedNote : entry);
+                    this.save();
+                    return;
+                }
 
-            if (!result.ok) {
-                const updatedNote = { ...note, deleted: nextDeleted, deletedAt: nextDeletedAt };
-                this.markSyncFailure(updatedNote, 'delete', result);
-                this.notes = this.notes.map((entry) => entry.id === id ? updatedNote : entry);
+                const serverNote = this.normalizeNote(result.data.note || result.data);
+                this.notes = this.notes.map((entry) => entry.id === id ? serverNote : entry);
+                this.serverHydrated = true;
                 this.save();
-                return updatedNote;
-            }
-
-            const serverNote = this.normalizeNote(result.data.note || result.data);
-            this.notes = this.notes.map((entry) => entry.id === id ? serverNote : entry);
-            this.serverHydrated = true;
-            this.save();
-            return serverNote;
+            });
         }
 
-        note.deleted = nextDeleted;
-        note.deletedAt = nextDeletedAt;
-        this.save();
-        return note;
+        return updatedNote;
     }
 
     markSyncFailure(note, op, result) {
@@ -472,4 +471,4 @@ export class NotesManager {
 
         return { earliest, latest };
     }
-}
+                             }
