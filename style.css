@@ -567,7 +567,7 @@ html {
   visibility: hidden;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.5s ease, visibility 0.5s ease;
+  transition: opacity 0.32s ease, visibility 0.32s ease;
   will-change: opacity, visibility;
   transform: translateZ(0);
   contain: strict;
