@@ -126,6 +126,41 @@ export class UI {
         `;
         this.grid.appendChild(newCard);
     }
+    createEmptyState(search) {
+        const emptyMsg = document.createElement('div');
+        const hasSearch = search.trim().length > 0;
+
+        if (this.view === 'trash') {
+            emptyMsg.className = 'empty-state trash-empty-state';
+            emptyMsg.innerHTML = `
+                <iconify-icon icon="fluent:checkmark-circle-24-regular"></iconify-icon>
+                <h2>Trash is empty</h2>
+                <p>Deleted notes stay here for 7 days before they disappear forever.</p>
+                <button type="button" class="trash-empty-action" data-action="view-all">
+                    Back to All Notes
+                </button>
+            `;
+            return emptyMsg;
+        }
+
+        emptyMsg.className = `empty-state ${hasSearch ? 'search-empty-state' : 'notes-empty-state'}`;
+        const periodLabels = {
+            today: 'today',
+            week: 'this week',
+            month: 'this month',
+        };
+        emptyMsg.innerHTML = hasSearch
+            ? `
+                <iconify-icon icon="fluent:search-24-regular"></iconify-icon>
+                <h2>No notes found</h2>
+                <p>Try a different search term or clear your search.</p>
+            `
+            : `
+                <h2>No notes for ${periodLabels[this.tab]}</h2>
+                <p>Your scribbles will appear here when you add one.</p>
+            `;
+        return emptyMsg;
+    }
     render(search = '', options = {}) {
         const { animate = true, previousNoteIds = null, smartAnimate = false } = options;
         const notes = this.manager.getNotes(this.view === 'trash', search.toLowerCase(), this.tab, this.viewedMonth);
@@ -158,13 +193,12 @@ export class UI {
                 cardsToRemove.forEach(card => card.remove());
 
                 if (notes.length === 0) {
-                    const emptyMsg = document.createElement('div');
-                    emptyMsg.className = 'empty-state';
-                    emptyMsg.textContent = this.view === 'trash'
-                        ? 'No stray scribbles here. Scribbles vanish after 7 days in the trash.'
-                        : 'No scribbles found for this time period.';
-                    this.grid.appendChild(emptyMsg);
-                    this.placeNewNoteTrigger();
+                    const newNoteTrigger = this.grid.querySelector('#trigger-new-note');
+                    if (newNoteTrigger) newNoteTrigger.remove();
+                    this.grid.appendChild(this.createEmptyState(search));
+                    if (this.view === 'active' && !search.trim()) {
+                        this.placeNewNoteTrigger();
+                    }
                     return;
                 }
 
@@ -190,25 +224,15 @@ export class UI {
         this.grid.innerHTML = '';
 
         if (notes.length === 0 && this.view === 'trash') {
-            const emptyMsg = document.createElement('div');
-            emptyMsg.className = 'empty-state trash-empty-state';
-            emptyMsg.innerHTML = `
-                <iconify-icon icon="fluent:checkmark-circle-24-regular"></iconify-icon>
-                <h2>Trash is empty</h2>
-                <p>Deleted notes stay here for 7 days before they disappear forever.</p>
-                <button type="button" class="trash-empty-action" data-action="view-all">
-                    Back to All Notes
-                </button>
-            `;
-            this.grid.appendChild(emptyMsg);
+            this.grid.appendChild(this.createEmptyState(search));
             return;
         }
 
         if (notes.length === 0 && this.view === 'active') {
-            const emptyMsg = document.createElement('div');
-            emptyMsg.className = 'empty-state';
-            emptyMsg.textContent = 'No scribbles found for this time period.';
-            this.grid.appendChild(emptyMsg);
+            this.grid.appendChild(this.createEmptyState(search));
+            if (!search.trim()) {
+                this.placeNewNoteTrigger();
+            }
         }
 
         notes.forEach((note, index) => {
@@ -219,7 +243,7 @@ export class UI {
             this.grid.appendChild(card);
         });
 
-        if (this.view === 'active') {
+        if (this.view === 'active' && notes.length > 0) {
             this.placeNewNoteTrigger();
         }
     }

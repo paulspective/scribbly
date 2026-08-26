@@ -173,6 +173,11 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        if (e.target.closest('[data-action="add-note"]')) {
+            openModal();
+            return;
+        }
+
         if (e.target.closest('#trigger-new-note')) {
             openModal();
             return;
