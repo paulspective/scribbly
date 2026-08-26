@@ -559,15 +559,15 @@ html {
   position: fixed;
   inset: 0;
   background: var(--overlay);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   justify-content: center;
   align-items: center;
   z-index: 100;
   visibility: hidden;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.32s ease, visibility 0.32s ease;
+  transition: opacity 0.22s ease, visibility 0.22s ease;
   will-change: opacity, visibility;
   transform: translateZ(0);
   contain: strict;
@@ -758,10 +758,6 @@ html {
   justify-content: center;
 }
 
-#auth-submit-btn:active {
-  transform: scale(0.98);
-}
-
 #auth-submit-btn:disabled {
   cursor: default;
   opacity: 0.85;
@@ -939,8 +935,8 @@ html {
     inset: 0;
     background: var(--overlay);
     z-index: 150;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     transition: opacity 0.5s ease, visibility 0.5s ease;
     will-change: opacity, visibility;
     transform: translateZ(0);
