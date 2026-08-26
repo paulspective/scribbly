@@ -61,17 +61,20 @@ body {
   align-items: center;
   padding: 30px;
   min-height: 100vh;
+  overflow-x: hidden;
   color: var(--text-primary);
 }
 
 html {
   scroll-behavior: smooth;
   touch-action: manipulation;
+  overflow-x: hidden;
 }
 
 .app-container {
   display: flex;
   width: 1500px;
+  max-width: 100%;
   height: min(800px, calc(100vh - 60px));
   background: var(--bg-container);
   border-radius: 24px;
@@ -232,13 +235,14 @@ html {
 .top-header {
   display: flex;
   align-items: center;
-  gap: 40px;
+  gap: 60px;
   margin-bottom: 50px;
 }
 
 .top-header-row {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 15px;
 }
 
@@ -265,7 +269,7 @@ html {
   background: var(--bg-search);
   padding: 15px 20px;
   border-radius: 8px;
-  width: 350px;
+  width: 450px;
 }
 
 .search-box input {
@@ -301,6 +305,10 @@ html {
   display: flex;
   gap: 30px;
   position: relative;
+}
+
+.notes-header-bar.hidden {
+  display: none;
 }
 
 .tab {
@@ -516,6 +524,53 @@ html {
   color: var(--text-secondary);
   font-size: 15px;
   font-weight: 600;
+}
+
+.trash-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 55px 20px 20px;
+}
+
+.trash-empty-state>iconify-icon {
+  font-size: 42px;
+  color: var(--text-primary);
+}
+
+.trash-empty-state h2,
+.trash-empty-state p {
+  margin: 0;
+}
+
+.trash-empty-state h2 {
+  color: var(--text-primary);
+  font-size: 22px;
+}
+
+.trash-empty-state p {
+  max-width: 420px;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.trash-empty-action {
+  margin-top: 8px;
+  padding: 11px 18px;
+  border: none;
+  border-radius: 8px;
+  background: var(--bg-sidebar);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.trash-empty-action:hover {
+  background: var(--border-color);
 }
 
 .fab {
@@ -880,7 +935,7 @@ html {
   transform: translateX(-50%) translateY(0);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1100px) {
   body {
     padding: 0;
   }
@@ -890,19 +945,6 @@ html {
     height: 100vh;
     border-radius: 0;
     flex-direction: column;
-  }
-
-  .tabs {
-    display: flex;
-    gap: 15px;
-  }
-
-  .tab {
-    font-size: 12px;
-  }
-
-  .date-nav {
-    gap: 5px;
   }
 
   .hamburger-btn {
@@ -916,6 +958,7 @@ html {
     left: 0;
     height: 100%;
     width: 260px;
+    max-width: 85vw;
     border: none;
     border-radius: 0 24px 24px 0;
     z-index: 200;
@@ -966,14 +1009,19 @@ html {
     gap: 15px;
   }
 
+  .search-box {
+    width: 100%;
+  }
+}
 
+@media (max-width: 846px) {
   .search-box {
     width: 100%;
     padding: 12px 15px;
   }
 
   .notes-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .modal-content {
@@ -989,7 +1037,11 @@ html {
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 543px) {
+  .notes-grid {
+    grid-template-columns: 1fr;
+  }
+
   #note-modal {
     align-items: flex-end;
   }
@@ -1004,5 +1056,29 @@ html {
 
   #note-modal.active .modal-content {
     transform: translateY(0);
+  }
+}
+
+@media (max-width: 480px) {
+  .tabs {
+    display: flex;
+    gap: 15px;
+  }
+
+  .tab {
+    font-size: 12px;
+  }
+
+  .date-nav {
+    gap: 5px;
+  }
+
+  .modal-content {
+    padding: 20px;
+  }
+
+  .auth-tabs,
+  #auth-form {
+    gap: 16px;
   }
 }
