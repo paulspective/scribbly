@@ -39,10 +39,13 @@ export class UI {
         this.viewedMonth = { month: m, year: y };
     }
     updateMonthNav(notesFound) {
+        const header = document.querySelector('.notes-header-bar');
         const dateNav = document.querySelector('.date-nav');
         const prevBtn = document.getElementById('month-prev');
         const nextBtn = document.getElementById('month-next');
         const label = document.getElementById('current-month-display');
+
+        header.classList.toggle('hidden', this.view === 'trash');
 
         if (this.view === 'trash' || this.tab !== 'month') {
             dateNav.classList.add('hidden');
@@ -188,8 +191,15 @@ export class UI {
 
         if (notes.length === 0 && this.view === 'trash') {
             const emptyMsg = document.createElement('div');
-            emptyMsg.className = 'empty-state';
-            emptyMsg.textContent = 'No stray scribbles here. Scribbles vanish after 7 days in the trash.';
+            emptyMsg.className = 'empty-state trash-empty-state';
+            emptyMsg.innerHTML = `
+                <iconify-icon icon="fluent:checkmark-circle-24-regular"></iconify-icon>
+                <h2>Trash is empty</h2>
+                <p>Deleted notes stay here for 7 days before they disappear forever.</p>
+                <button type="button" class="trash-empty-action" data-action="view-all">
+                    Back to All Notes
+                </button>
+            `;
             this.grid.appendChild(emptyMsg);
             return;
         }
