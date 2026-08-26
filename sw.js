@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'scribbly-v13';
+const CACHE_VERSION = 'scribbly-v14';
 const ICONIFY_CACHE = 'iconify-cache';
 
 const APP_SHELL = [
