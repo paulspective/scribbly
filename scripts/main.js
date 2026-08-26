@@ -168,6 +168,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.getElementById('notes-grid').addEventListener('click', async (e) => {
+        if (e.target.closest('[data-action="view-all"]')) {
+            document.getElementById('nav-all').click();
+            return;
+        }
+
         if (e.target.closest('#trigger-new-note')) {
             openModal();
             return;
