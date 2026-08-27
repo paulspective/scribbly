@@ -471,4 +471,4 @@ export class NotesManager {
 
         return { earliest, latest };
     }
-                             }
+}

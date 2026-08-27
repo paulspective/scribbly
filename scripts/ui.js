@@ -88,9 +88,11 @@ export class UI {
         card.dataset.id = note.id;
 
         const actionIcon = this.view === 'trash' ? 'fluent:arrow-undo-24-regular' : 'fluent:delete-24-regular';
-        const syncBadge = note.syncError
-            ? `<iconify-icon class="sync-error-icon" icon="fluent:cloud-off-24-filled" title="Couldn't sync to your account yet. We'll keep retrying."></iconify-icon>`
-            : '';
+        const syncBadge = note.pendingSync
+            ? `<iconify-icon class="sync-pending-icon" icon="fluent:cloud-sync-24-regular" title="Waiting to sync to your account"></iconify-icon>`
+            : note.syncError
+                ? `<iconify-icon class="sync-error-icon" icon="fluent:cloud-off-24-filled" title="Couldn't sync to your account yet. We'll keep retrying."></iconify-icon>`
+                : '';
 
         card.innerHTML = `
             <div class="note-date">${note.date}</div>
@@ -106,25 +108,37 @@ export class UI {
         `;
         return card;
     }
-
     placeNewNoteTrigger() {
         const existing = this.grid.querySelector('#trigger-new-note');
+        const emptyState = this.grid.querySelector('.empty-state');
+
         if (this.view !== 'active') {
             if (existing) existing.remove();
             return;
         }
+
         if (existing) {
-            this.grid.appendChild(existing);
+            if (emptyState) {
+                emptyState.after(existing);
+            } else {
+                this.grid.prepend(existing);
+            }
             return;
         }
+
         const newCard = document.createElement('div');
         newCard.className = 'new-note-card';
         newCard.id = 'trigger-new-note';
         newCard.innerHTML = `
-            <iconify-icon icon="fluent:document-add-24-regular"></iconify-icon>
-            <span>New Note</span>
-        `;
-        this.grid.appendChild(newCard);
+        <iconify-icon icon="fluent:document-add-24-regular"></iconify-icon>
+        <span>New Note</span>
+    `;
+
+        if (emptyState) {
+            emptyState.after(newCard);
+        } else {
+            this.grid.prepend(newCard);
+        }
     }
     createEmptyState(search) {
         const emptyMsg = document.createElement('div');
