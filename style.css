@@ -235,7 +235,7 @@ html {
 .top-header {
   display: flex;
   align-items: center;
-  gap: 60px;
+  gap: 30px;
   margin-bottom: 30px;
 }
 
