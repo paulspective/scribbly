@@ -829,7 +829,6 @@ html {
   font-weight: 700;
   cursor: pointer;
   font-size: 15px;
-  transition: transform 0.15s ease;
   display: flex;
   align-items: center;
   justify-content: center;
